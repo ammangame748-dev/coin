@@ -16,6 +16,79 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const port = process.env.PORT || 3000;
 
+// --- الصفحة الرئيسية (Landing Page) ---
+app.get('/', (req, res) => {
+    res.send(`
+        <html>
+        <head>
+            <title>CoinMaster Pro - Welcome</title>
+            <style>
+                body { background: #0b0c10; color: #00f5d4; font-family: sans-serif; text-align: center; padding: 100px; }
+                .container { background: #1f2833; padding: 50px; border-radius: 20px; display: inline-block; box-shadow: 0 0 30px rgba(0,245,212,0.3); }
+                h1 { color: #7289da; font-size: 3em; }
+                p { color: #c5c6c7; font-size: 1.2em; }
+                .btn { background: #7289da; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.2em; transition: 0.3s; }
+                .btn:hover { background: #5b6eae; box-shadow: 0 0 15px #7289da; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🪙 CoinMaster Pro</h1>
+                <p>النظام الناري المتكامل لإدارة النقاط في ديسكورد</p>
+                <br><br>
+                <a href="/auth" class="btn">تسجيل الدخول عبر ديسكورد 🚀</a>
+                <p style="margin-top:20px; font-size:0.8em; color:#888;">أو ادخل مباشرة للداش بورد إذا كنت تملك ID السيرفر: /dashboard/YOUR_SERVER_ID</p>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+// رابط تسجيل الدخول
+app.get('/auth', (req, res) => {
+    const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+    const REDIRECT_URI = encodeURIComponent(process.env.DISCORD_REDIRECT_URI);
+    res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify%20guilds`);
+});
+
+// رابط الكول باك (Callback)
+app.get('/callback', async (req, res) => {
+    const code = req.query.code;
+    if (!code) return res.send('فشل تسجيل الدخول: لا يوجد كود.');
+    
+    try {
+        const tokenResponse = await axios.post('https://discord.com/api/oauth2/token', new URLSearchParams({
+            client_id: process.env.DISCORD_CLIENT_ID,
+            client_secret: process.env.DISCORD_CLIENT_SECRET,
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: process.env.DISCORD_REDIRECT_URI,
+        }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+
+        const { access_token } = tokenResponse.data;
+        const guildsResponse = await axios.get('https://discord.com/api/users/@me/guilds', {
+            headers: { authorization: `Bearer ${access_token}` }
+        });
+
+        const adminGuilds = guildsResponse.data.filter(g => (g.permissions & 0x8) === 0x8);
+        
+        let list = '<h1>اختر سيرفر للتحكم به:</h1><ul>';
+        adminGuilds.forEach(g => {
+            list += `<li><a href="/dashboard/${g.id}" style="color:#00f5d4; font-size:1.5em; text-decoration:none;">🔗 ${g.name}</a></li>`;
+        });
+        list += '</ul>';
+
+        res.send(`
+            <html>
+            <head><style>body { background: #0b0c10; color: white; font-family: sans-serif; padding: 50px; } a:hover { text-decoration: underline !important; }</style></head>
+            <body>${list}</body>
+            </html>
+        `);
+    } catch (e) {
+        res.send('حدث خطأ أثناء الاتصال بديسكورد.');
+    }
+});
+
 // إعداد multer لرفع الصور
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
