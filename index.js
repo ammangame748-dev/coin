@@ -8,53 +8,112 @@ const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const axios = require('axios'); // تأكد من وجود axios
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
-// جعل مجلد الرفع متاحاً للوصول العام لعرض الصور
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const port = process.env.PORT || 3000;
 
-// --- الصفحة الرئيسية (Landing Page) ---
+// --- إعدادات التصميم النيون (CSS المشترك) ---
+const neonCSS = `
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+        body { 
+            background: #0b0c10; 
+            color: #c5c6c7; 
+            font-family: 'Roboto', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .neon-box { 
+            background: #1f2833; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 0 20px rgba(0, 245, 212, 0.2), inset 0 0 10px rgba(0, 245, 212, 0.1); 
+            border: 1px solid #45a29e;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+        h1 { font-family: 'Orbitron', sans-serif; color: #66fcf1; text-shadow: 0 0 10px #66fcf1; margin-bottom: 20px; }
+        p { color: #45a29e; font-weight: 300; line-height: 1.6; }
+        .btn { 
+            display: inline-block;
+            background: transparent; 
+            color: #66fcf1; 
+            padding: 15px 35px; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            font-family: 'Orbitron', sans-serif;
+            border: 2px solid #66fcf1;
+            transition: 0.4s; 
+            margin-top: 30px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .btn:hover { 
+            background: #66fcf1; 
+            color: #0b0c10; 
+            box-shadow: 0 0 30px #66fcf1; 
+            transform: translateY(-3px);
+        }
+        .guild-card {
+            background: #0b0c10;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #66fcf1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.3s;
+        }
+        .guild-card:hover { transform: scale(1.02); background: #1f2833; }
+        .guild-card a { color: #66fcf1; text-decoration: none; font-weight: bold; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input, select { width: 100%; padding: 12px; margin-top: 8px; background: #0b0c10; border: 1px solid #45a29e; color: #66fcf1; border-radius: 5px; box-sizing: border-box; }
+        label { display: block; margin-top: 15px; text-align: left; color: #66fcf1; font-size: 0.9em; text-transform: uppercase; }
+    </style>
+`;
+
+// --- مسارات الويب ---
 app.get('/', (req, res) => {
     res.send(`
         <html>
-        <head>
-            <title>CoinMaster Pro - Welcome</title>
-            <style>
-                body { background: #0b0c10; color: #00f5d4; font-family: sans-serif; text-align: center; padding: 100px; }
-                .container { background: #1f2833; padding: 50px; border-radius: 20px; display: inline-block; box-shadow: 0 0 30px rgba(0,245,212,0.3); }
-                h1 { color: #7289da; font-size: 3em; }
-                p { color: #c5c6c7; font-size: 1.2em; }
-                .btn { background: #7289da; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.2em; transition: 0.3s; }
-                .btn:hover { background: #5b6eae; box-shadow: 0 0 15px #7289da; }
-            </style>
-        </head>
+        <head><title>CoinMaster Pro | Welcome</title>${neonCSS}</head>
         <body>
-            <div class="container">
-                <h1>🪙 CoinMaster Pro</h1>
-                <p>النظام الناري المتكامل لإدارة النقاط في ديسكورد</p>
-                <br><br>
-                <a href="/auth" class="btn">تسجيل الدخول عبر ديسكورد 🚀</a>
-                <p style="margin-top:20px; font-size:0.8em; color:#888;">أو ادخل مباشرة للداش بورد إذا كنت تملك ID السيرفر: /dashboard/YOUR_SERVER_ID</p>
+            <div class="neon-box">
+                <h1>🪙 COINMASTER PRO</h1>
+                <p>النظام الناري المتكامل لإدارة النقاط في ديسكورد.<br>تحكم كامل، تصميم نيون، وأداء لا يقهر.</p>
+                <a href="/auth" class="btn">دخول الإدارة 🚀</a>
             </div>
         </body>
         </html>
     `);
 });
 
-// رابط تسجيل الدخول
 app.get('/auth', (req, res) => {
     const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
     const REDIRECT_URI = encodeURIComponent(process.env.DISCORD_REDIRECT_URI);
+    if (!CLIENT_ID || !process.env.DISCORD_REDIRECT_URI) {
+        return res.send('خطأ: لم يتم ضبط DISCORD_CLIENT_ID أو REDIRECT_URI في ملف .env');
+    }
     res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify%20guilds`);
 });
 
-// رابط الكول باك (Callback)
 app.get('/callback', async (req, res) => {
     const code = req.query.code;
-    if (!code) return res.send('فشل تسجيل الدخول: لا يوجد كود.');
+    if (!code) return res.send('فشل تسجيل الدخول: لم يتم استلام كود من ديسكورد.');
     
     try {
         const tokenResponse = await axios.post('https://discord.com/api/oauth2/token', new URLSearchParams({
@@ -70,26 +129,53 @@ app.get('/callback', async (req, res) => {
             headers: { authorization: `Bearer ${access_token}` }
         });
 
-        const adminGuilds = guildsResponse.data.filter(g => (g.permissions & 0x8) === 0x8);
+        // تصفية السيرفرات التي يمتلك فيها المستخدم صلاحية Administrator (0x8)
+        const adminGuilds = guildsResponse.data.filter(g => (BigInt(g.permissions) & 0x8n) === 0x8n);
         
-        let list = '<h1>اختر سيرفر للتحكم به:</h1><ul>';
+        let guildListHTML = '';
         adminGuilds.forEach(g => {
-            list += `<li><a href="/dashboard/${g.id}" style="color:#00f5d4; font-size:1.5em; text-decoration:none;">🔗 ${g.name}</a></li>`;
+            guildListHTML += `
+                <div class="guild-card">
+                    <span>${g.name}</span>
+                    <a href="/dashboard/${g.id}">دخول 🔗</a>
+                </div>
+            `;
         });
-        list += '</ul>';
 
         res.send(`
             <html>
-            <head><style>body { background: #0b0c10; color: white; font-family: sans-serif; padding: 50px; } a:hover { text-decoration: underline !important; }</style></head>
-            <body>${list}</body>
+            <head><title>Select Server</title>${neonCSS}</head>
+            <body>
+                <div class="neon-box">
+                    <h1>سيرفراتك</h1>
+                    <p>اختر السيرفر الذي تريد تعديل إعداداته:</p>
+                    <div style="margin-top: 20px; max-height: 300px; overflow-y: auto; padding-right: 10px;">
+                        ${guildListHTML || '<p>لا توجد سيرفرات تمتلك فيها صلاحية مسؤول.</p>'}
+                    </div>
+                    <a href="/" class="btn" style="font-size: 0.8em; padding: 10px 20px;">رجوع</a>
+                </div>
+            </body>
             </html>
         `);
     } catch (e) {
-        res.send('حدث خطأ أثناء الاتصال بديسكورد.');
+        console.error('OAuth2 Error:', e.response?.data || e.message);
+        res.send(`
+            <html>
+            <head><title>Error</title>${neonCSS}</head>
+            <body>
+                <div class="neon-box" style="border-color: #ff4d4d;">
+                    <h1 style="color: #ff4d4d; text-shadow: 0 0 10px #ff4d4d;">خطأ في الاتصال</h1>
+                    <p>حدث خطأ أثناء محاولة الاتصال بديسكورد. تأكد من صحة الـ Client Secret والـ Redirect URI في ملف .env وبوابة المطورين.</p>
+                    <p style="font-size: 0.8em; color: #ff4d4d;">${e.response?.data?.error_description || e.message}</p>
+                    <a href="/" class="btn">حاول مجدداً</a>
+                </div>
+            </body>
+            </html>
+        `);
     }
 });
 
-// إعداد multer لرفع الصور
+// --- إعداد multer لرفع الصور ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const dir = './uploads';
@@ -102,6 +188,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// --- إعداد البوت ---
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -111,7 +198,6 @@ const client = new Client({
     ],
 });
 
-// --- قاعدة البيانات المحلية ---
 const DB_PATH = path.join(__dirname, 'database.json');
 function readDB() {
     if (!fs.existsSync(DB_PATH)) {
@@ -142,7 +228,6 @@ function getGuildConfig(guildId) {
     return db.guilds[guildId];
 }
 
-// --- تنسيق النقاط ---
 function formatPoints(amount, config) {
     const emoji = config.coinEmoji || '';
     switch (config.formatType) {
@@ -152,7 +237,7 @@ function formatPoints(amount, config) {
     }
 }
 
-// --- أوامر السلاش الإدارية ---
+// --- أوامر السلاش ---
 const slashCmds = [
     new SlashCommandBuilder().setName('give').setDescription('إعطاء نقاط').addUserOption(o => o.setName('user').setDescription('العضو').setRequired(true)).addIntegerOption(o => o.setName('amount').setDescription('الكمية').setRequired(true)),
     new SlashCommandBuilder().setName('remove').setDescription('سحب نقاط').addUserOption(o => o.setName('user').setDescription('العضو').setRequired(true)).addIntegerOption(o => o.setName('amount').setDescription('الكمية').setRequired(true)),
@@ -170,15 +255,14 @@ client.on('ready', async () => {
     setInterval(updateTopChannels, 10 * 60 * 1000);
 });
 
-// معالجة الأوامر النصية
 client.on('messageCreate', async message => {
     if (message.author.bot || !message.guild) return;
     const config = getGuildConfig(message.guild.id);
     if (message.content === config.balanceCmd) {
         const db = readDB();
         const points = db.users[`${message.guild.id}_${message.author.id}`]?.points || 0;
-        const embed = new EmbedBuilder().setColor('#00f5d4').setTitle(`💰 رصيدك: ${config.coinName}`).setThumbnail(message.author.displayAvatarURL()).setDescription(`رصيدك الحالي هو:\n\n${formatPoints(points, config)}`).setFooter({ text: config.footer });
-        if (config.banner) embed.setImage(config.banner); // هنا سيتم استخدام رابط الصورة المرفوعة
+        const embed = new EmbedBuilder().setColor('#66fcf1').setTitle(`💰 رصيدك: ${config.coinName}`).setThumbnail(message.author.displayAvatarURL()).setDescription(`رصيدك الحالي هو:\n\n${formatPoints(points, config)}`).setFooter({ text: config.footer });
+        if (config.banner) embed.setImage(config.banner);
         message.reply({ embeds: [embed] });
     }
     if (message.content === config.topCmd) {
@@ -187,7 +271,6 @@ client.on('messageCreate', async message => {
     }
 });
 
-// معالجة أوامر السلاش
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ للمسؤولين فقط.', ephemeral: true });
@@ -207,7 +290,7 @@ client.on('interactionCreate', async interaction => {
         
         if (config.logChannel) {
             const channel = interaction.guild.channels.cache.get(config.logChannel);
-            if (channel) channel.send({ embeds: [new EmbedBuilder().setColor('#2ecc71').setTitle('📢 لوق العمليات').addFields({name:'المسؤول', value:user.username, inline:true}, {name:'العضو', value:target.username, inline:true}, {name:'العملية', value:commandName, inline:true}, {name:'الكمية', value:amount.toString(), inline:true}).setTimestamp()] });
+            if (channel) channel.send({ embeds: [new EmbedBuilder().setColor('#66fcf1').setTitle('📢 لوق العمليات').addFields({name:'المسؤول', value:user.username, inline:true}, {name:'العضو', value:target.username, inline:true}, {name:'العملية', value:commandName, inline:true}, {name:'الكمية', value:amount.toString(), inline:true}).setTimestamp()] });
         }
     }
     if (commandName === 'reset') {
@@ -228,7 +311,7 @@ async function createTopEmbed(guildId) {
         desc += `#${i + 1} | ${config.coinEmoji} ${u.username.padEnd(15)} -> ${top[i].p}\n`;
     }
     desc += '```';
-    return new EmbedBuilder().setColor('#7289da').setTitle(`🏆 متصدرين ${config.coinName}`).setDescription(desc).setTimestamp().setFooter({ text: config.footer });
+    return new EmbedBuilder().setColor('#66fcf1').setTitle(`🏆 متصدرين ${config.coinName}`).setDescription(desc).setTimestamp().setFooter({ text: config.footer });
 }
 
 async function updateTopChannels() {
@@ -248,38 +331,25 @@ async function updateTopChannels() {
     }
 }
 
-// --- الداش بورد المطور ---
+// --- داش بورد السيرفر ---
 app.get('/dashboard/:guildId', async (req, res) => {
     const guildId = req.params.guildId;
     const guild = client.guilds.cache.get(guildId);
     if (!guild) return res.send('<h1>❌ البوت ليس موجوداً في هذا السيرفر!</h1>');
 
     const config = getGuildConfig(guildId);
-    // جلب القنوات الكتابية فقط
     const channels = guild.channels.cache.filter(c => c.type === ChannelType.GuildText);
     
     let channelOptions = '<option value="">-- اختر قناة --</option>';
     channels.forEach(c => {
-        channelOptions += `<option value="${c.id}">${c.name}</option>`;
+        channelOptions += `<option value="${c.id}" ${config.logChannel === c.id || config.topChannel === c.id ? 'selected' : ''}>${c.name}</option>`;
     });
 
     res.send(`
         <html>
-        <head>
-            <title>CoinMaster Pro - Dashboard</title>
-            <style>
-                body { background: #0b0c10; color: #00f5d4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; }
-                .container { max-width: 600px; margin: auto; background: #1f2833; padding: 30px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,245,212,0.2); }
-                h1 { text-align: center; color: #7289da; }
-                label { display: block; margin-top: 15px; font-weight: bold; color: #c5c6c7; }
-                input, select { width: 100%; padding: 12px; margin-top: 5px; background: #0b0c10; border: 1px solid #45a29e; color: white; border-radius: 5px; box-sizing: border-box; }
-                .btn { background: #7289da; color: white; border: none; padding: 15px; margin-top: 25px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 1.1em; transition: 0.3s; }
-                .btn:hover { background: #5b6eae; box-shadow: 0 0 10px #7289da; }
-                .preview-img { max-width: 100%; margin-top: 10px; border-radius: 5px; border: 1px solid #00f5d4; }
-            </style>
-        </head>
+        <head><title>Dashboard | ${guild.name}</title>${neonCSS}</head>
         <body>
-            <div class="container">
+            <div class="neon-box" style="max-width: 600px;">
                 <h1>⚙️ إعدادات ${guild.name}</h1>
                 <form action="/save/${guildId}" method="POST" enctype="multipart/form-data">
                     <label>اسم العملة:</label>
@@ -303,20 +373,20 @@ app.get('/dashboard/:guildId', async (req, res) => {
                     
                     <label>روم اللوق (سجل العمليات):</label>
                     <select name="logChannel">
-                        ${channelOptions.replace(`value="${config.logChannel}"`, `value="${config.logChannel}" selected`)}
+                        ${channelOptions}
                     </select>
                     
                     <label>روم التوب (تحديث تلقائي):</label>
                     <select name="topChannel">
-                        ${channelOptions.replace(`value="${config.topChannel}"`, `value="${config.topChannel}" selected`)}
+                        ${channelOptions}
                     </select>
                     
                     <label>رفع بانر البطاقة (صورة):</label>
                     <input type="file" name="bannerFile" accept="image/*">
-                    ${config.banner ? `<p style="color:#888">الصورة الحالية:</p><img src="${config.banner}" class="preview-img">` : ''}
                     
-                    <button type="submit" class="btn">حفظ وتطبيق الإعدادات 🚀</button>
+                    <button type="submit" class="btn">حفظ الإعدادات 🚀</button>
                 </form>
+                <a href="/callback" style="display:block; margin-top:15px; color:#45a29e; text-decoration:none; font-size:0.8em;">العودة لقائمة السيرفرات</a>
             </div>
         </body>
         </html>
@@ -327,19 +397,15 @@ app.post('/save/:guildId', upload.single('bannerFile'), (req, res) => {
     const db = readDB();
     const guildId = req.params.guildId;
     const config = db.guilds[guildId];
-
     const updates = { ...req.body };
-    // إذا تم رفع صورة جديدة، نقوم بتحديث الرابط
     if (req.file) {
-        // ملاحظة: في بيئة محلية، الرابط سيكون localhost. في الاستضافة الحقيقية يجب وضع رابط الموقع.
         const protocol = req.protocol;
         const host = req.get('host');
         updates.banner = `${protocol}://${host}/uploads/${req.file.filename}`;
     }
-
     db.guilds[guildId] = { ...config, ...updates };
     saveDB(db);
-    res.send(`<h1>✅ تم الحفظ بنجاح!</h1><p>تم تحديث الرومات والإعدادات وصورة البانر.</p><a href="/dashboard/${guildId}" style="color:#7289da">العودة للوحة التحكم</a>`);
+    res.send(`<html><head>${neonCSS}</head><body><div class="neon-box"><h1>✅ تم الحفظ!</h1><p>تم تحديث إعدادات سيرفرك بنجاح.</p><a href="/dashboard/${guildId}" class="btn">رجوع</a></div></body></html>`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
