@@ -1,4 +1,3 @@
-// Tool Data and UI Templates
 const tools = {
     transcription: {
         title: "محول الفيديو لنصوص",
@@ -68,7 +67,6 @@ const tools = {
     }
 };
 
-// Modal Logic
 const modal = document.getElementById('modal-container');
 const modalBody = document.getElementById('modal-body');
 
@@ -80,8 +78,7 @@ function openTool(toolKey) {
         ${tool.content}
     `;
     modal.style.display = 'block';
-    
-    // Setup Upload Area Click
+
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     dropZone.onclick = () => fileInput.click();
@@ -95,11 +92,10 @@ window.onclick = (event) => {
     if (event.target == modal) closeModal();
 };
 
-// Simulation Logic (For Demo Purposes)
 function simulateTool(type, subType = '') {
     const loader = document.getElementById('loader');
     const resultBox = document.getElementById('result-box');
-    
+
     loader.style.display = 'block';
     resultBox.style.display = 'none';
 
@@ -125,7 +121,6 @@ function copyText() {
     alert('تم نسخ النص إلى الحافظة!');
 }
 
-// Logo Animation on Hover
 const logo = document.getElementById('main-logo');
 logo.onmouseover = () => {
     logo.style.transform = 'rotate(5deg) scale(1.1)';

@@ -28,7 +28,6 @@ body {
     padding: 0 20px;
 }
 
-/* Background Glow Effect */
 .bg-glow {
     position: fixed;
     top: 0;
@@ -40,7 +39,6 @@ body {
     pointer-events: none;
 }
 
-/* Navigation */
 nav {
     background: rgba(22, 22, 26, 0.8);
     backdrop-filter: blur(10px);
@@ -93,7 +91,6 @@ nav .container {
     color: var(--secondary);
 }
 
-/* Hero Section */
 header {
     height: 100vh;
     display: flex;
@@ -162,7 +159,6 @@ header {
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Tools Section */
 #tools {
     padding: 100px 0;
 }
@@ -240,7 +236,6 @@ header {
     background: var(--primary);
 }
 
-/* About Section */
 #about {
     padding: 100px 0;
     background: rgba(255, 255, 255, 0.02);
@@ -286,7 +281,6 @@ header {
     color: var(--primary);
 }
 
-/* Modal Styling */
 .modal {
     display: none;
     position: fixed;
@@ -324,7 +318,6 @@ header {
     color: white;
 }
 
-/* Tool Interface inside Modal */
 .tool-ui {
     text-align: center;
 }
@@ -353,32 +346,56 @@ header {
     border: 1px solid #333;
 }
 
-/* Animations */
 @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.8; }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @keyframes slideDown {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .pulse {
     animation: pulse 3s infinite;
 }
 
-/* Footer */
 footer {
     padding: 40px 0;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
-    .hero-content h1 { font-size: 2.5rem; }
-    .nav-links { display: none; }
-    .about-content { flex-direction: column; text-align: center; }
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .about-content {
+        flex-direction: column;
+        text-align: center;
+    }
 }
