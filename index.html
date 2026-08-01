@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designak | منصة الأدوات الذكية</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Background Animation -->
+    <div class="bg-glow"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo" id="main-logo">
+                <span>D</span>esignak
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home"><i class="fas fa-home"></i> الرئيسية</a></li>
+                <li><a href="#tools"><i class="fas fa-tools"></i> الأدوات</a></li>
+                <li><a href="#about"><i class="fas fa-info-circle"></i> شرح الموقع</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="home">
+        <div class="container hero-content">
+            <h1 class="animate-text">مرحباً بك في <span class="highlight">Designak</span></h1>
+            <p>المنصة المتكاملة لتحويل الفيديو إلى نصوص، التعرف على الموسيقى، وتصميم الصور باحترافية.</p>
+            <div class="hero-buttons">
+                <a href="#tools" class="btn btn-primary">ابدأ الآن <i class="fas fa-rocket"></i></a>
+                <a href="#about" class="btn btn-secondary">كيف يعمل؟ <i class="fas fa-question"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tools Section -->
+    <section id="tools">
+        <div class="container">
+            <h2 class="section-title">أدواتنا الذكية</h2>
+            <div class="tools-grid">
+
+                <!-- Tool 1: Video Transcription -->
+                <div class="tool-card" id="tool-transcription">
+                    <div class="tool-icon"><i class="fas fa-closed-captioning"></i></div>
+                    <h3>محول الفيديو لنصوص</h3>
+                    <p>ارفع الفيديو واحصل على النص المكتوب فوراً بالعربية أو الإنجليزية.</p>
+                    <button class="btn-tool" onclick="openTool('transcription' )">استخدم الأداة</button>
+                </div>
+
+                <!-- Tool 2: Music ID -->
+                <div class="tool-card" id="tool-music">
+                    <div class="tool-icon"><i class="fas fa-music"></i></div>
+                    <h3>كاشف الموسيقى</h3>
+                    <p>تعرف على اسم أي أغنية أو موسيقى داخل مقاطع الفيديو الخاصة بك.</p>
+                    <button class="btn-tool" onclick="openTool('music')">استخدم الأداة</button>
+                </div>
+
+                <!-- Tool 3: Image Editor -->
+                <div class="tool-card" id="tool-image">
+                    <div class="tool-icon"><i class="fas fa-magic"></i></div>
+                    <h3>محرر الصور السريع</h3>
+                    <p>إزالة الخلفيات، إضافة نصوص متحركة، وتحويل الصيغ بضغطة زر.</p>
+                    <button class="btn-tool" onclick="openTool('image')">استخدم الأداة</button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <h2 class="section-title">شرح الموقع</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p><strong>Designak</strong> هو مشروع صُمم ليكون المساعد الأول لصناع المحتوى والمصممين. يوفر أدوات
+                        تعتمد على الذكاء الاصطناعي لتوفير الوقت والجهد.</p>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check-circle"></i> <strong>تحويل الفيديو:</strong> يدعم اللغات العربية
+                            والإنجليزية بدقة عالية.</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>كشف الموسيقى:</strong> قاعدة بيانات ضخمة للتعرف
+                            على الألحان.</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>تعديل الصور:</strong> أدوات مجانية بالكامل بدون
+                            الحاجة لبرامج معقدة.</li>
+                    </ul>
+                </div>
+                <div class="about-icon">
+                    <i class="fas fa-lightbulb pulse"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals for Tools -->
+    <div id="modal-container" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-body">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>جميع الحقوق محفوظة لـ &copy; 2026 <strong>Designak</strong></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
