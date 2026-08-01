@@ -5,7 +5,7 @@ const cloudinary = require('cloudinary').v2;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// إعداد Cloudinary باستخدام المتغيرات التي ستحصل عليها
+// إعداد Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -16,11 +16,10 @@ const upload = multer({ dest: 'uploads/' });
 
 app.use(express.static(__dirname));
 
-// أداة تعديل الصور: رفع الصورة لـ Cloudinary مع إزالة الخلفية
+// API لرفع الصور ومعالجتها
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
   try {
     const result = await cloudinary.uploader.upload(req.file.path, {
-        // ميزة إزالة الخلفية (تتطلب تفعيل Add-on في Cloudinary أو استخدام فلاتر)
         transformation: [{ effect: "improve" }] 
     });
     res.json({ url: result.secure_url });
