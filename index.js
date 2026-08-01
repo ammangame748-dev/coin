@@ -16,5 +16,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Designak Server is running on port ${PORT}`);
 });
