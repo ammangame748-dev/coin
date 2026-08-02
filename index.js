@@ -2208,7 +2208,7 @@ const htmlContent = `<!DOCTYPE html>
 
 </html>`;
 
-app.get('(.*)', (req, res) => {
+app.get('/:path*', (req, res) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return res.status(404).send('Not Found');
     res.send(htmlContent);
 });
