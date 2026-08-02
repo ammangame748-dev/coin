@@ -1,15 +1,13 @@
 {
-  "name": "designak-website",
+  "name": "discord-points-bot",
   "version": "1.0.0",
-  "description": "Designak multi-tool website",
   "main": "index.js",
-  "dependencies": {
-    "express": "^4.18.2",
-    "cloudinary": "^1.37.0",
-    "multer": "^1.4.5-lts.1",
-    "axios": "^1.4.0"
-  },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "express": "^4.18.2"
   }
 }
