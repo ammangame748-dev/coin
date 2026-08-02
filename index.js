@@ -1,9 +1,48 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, Partials } = require('discord.js');
 const express = require('express');
 const session = require('express-session');
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const http = require('http');
+
+// Simple fetch replacement that works in Node 24 without node-fetch
+function simpleFetch(url, options = {}) {
+    return new Promise((resolve, reject) => {
+        const urlObj = new URL(url);
+        const isHttps = urlObj.protocol === 'https:';
+        const lib = isHttps ? https : http;
+
+        const reqOptions = {
+            hostname: urlObj.hostname,
+            port: urlObj.port,
+            path: urlObj.pathname + urlObj.search,
+            method: options.method || 'GET',
+            headers: options.headers || {},
+        };
+
+        if (options.body && typeof options.body === 'string') {
+            reqOptions.headers['Content-Length'] = Buffer.byteLength(options.body);
+        }
+
+        const req = lib.request(reqOptions, (res) => {
+            const chunks = [];
+            res.on('data', (chunk) => chunks.push(chunk));
+            res.on('end', () => {
+                const body = Buffer.concat(chunks).toString();
+                resolve({
+                    json: () => JSON.parse(body),
+                    text: () => body,
+                    status: res.statusCode,
+                });
+            });
+        });
+
+        req.on('error', reject);
+        if (options.body) req.write(options.body);
+        req.end();
+    });
+}
 
 // ============================================================
 // DATABASE (JSON File Based)
@@ -230,7 +269,7 @@ client.on('messageCreate', async (message) => {
             .setDescription(db.storeItems.map((item, i) => `**${i + 1}.** ${item.name} - **${item.price.toLocaleString()}** ${pointsName}`).join('\n'))
             .setFooter({ text: 'اختر منتج لعرض التفاصيل أو الشراء' });
 
-        const msg = await message.reply({ embeds: [embed], components: rows, allowedMentions: { repliedUser: false } });
+        await message.reply({ embeds: [embed], components: rows, allowedMentions: { repliedUser: false } });
         return;
     }
 
@@ -268,7 +307,6 @@ client.on('messageCreate', async (message) => {
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton() && !interaction.isChatInputCommand()) return;
 
-    // Button interactions
     if (interaction.isButton()) {
         const customId = interaction.customId;
 
@@ -522,7 +560,7 @@ client.on('guildCreate', (guild) => {
 const app = express();
 app.use(express.json());
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'discord-points-system-secret-key',
+    secret: process.env.SESSION_SECRET || 'discord-points-system-secret-key-2024',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
@@ -549,11 +587,11 @@ app.get('/auth/discord', (req, res) => {
 
 app.get('/auth/discord/callback', async (req, res) => {
     const code = req.query.code;
-    if (!code) return res.redirect(DASHBOARD_URL + '/index.html');
+    if (!code) return res.redirect(DASHBOARD_URL + '/');
 
     try {
         // Exchange code for token
-        const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
+        const tokenRes = await simpleFetch('https://discord.com/api/oauth2/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
@@ -562,18 +600,18 @@ app.get('/auth/discord/callback', async (req, res) => {
                 grant_type: 'authorization_code',
                 code: code,
                 redirect_uri: `${DASHBOARD_URL}/auth/discord/callback`
-            })
+            }).toString()
         });
         const tokenData = await tokenRes.json();
 
         // Get user info
-        const userRes = await fetch('https://discord.com/api/users/@me', {
+        const userRes = await simpleFetch('https://discord.com/api/users/@me', {
             headers: { Authorization: `Bearer ${tokenData.access_token}` }
         });
         const userData = await userRes.json();
 
         // Get user guilds
-        const guildsRes = await fetch('https://discord.com/api/users/@me/guilds', {
+        const guildsRes = await simpleFetch('https://discord.com/api/users/@me/guilds', {
             headers: { Authorization: `Bearer ${tokenData.access_token}` }
         });
         const guildsData = await guildsRes.json();
@@ -588,10 +626,10 @@ app.get('/auth/discord/callback', async (req, res) => {
             guilds: guildsData
         };
 
-        res.redirect(DASHBOARD_URL + '/index.html');
+        res.redirect(DASHBOARD_URL + '/');
     } catch (err) {
         console.error('OAuth error:', err);
-        res.redirect(DASHBOARD_URL + '/index.html');
+        res.redirect(DASHBOARD_URL + '/');
     }
 });
 
@@ -843,27 +881,61 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', botOnline: client.isReady(), connectedGuilds: client.guilds.cache.size });
 });
 
-// Serve dashboard static files
-const dashboardPath1 = path.join(__dirname, '..', 'dashboard', 'build');
-const dashboardPath2 = path.join(__dirname, 'dashboard', 'build');
-app.use(express.static(dashboardPath1));
-app.use(express.static(dashboardPath2));
+// ============================================================
+// SERVE DASHBOARD - FIXED PATHS FOR RENDER
+// ============================================================
+// Try multiple possible paths for the dashboard
+const dashboardPaths = [
+    path.join(__dirname, 'dashboard', 'build'),       // Render: index.js is at root
+    path.join(__dirname, '..', 'dashboard', 'build'),  // Local: index.js is in bot/
+    path.join(process.cwd(), 'dashboard', 'build'),    // Fallback
+    path.join(__dirname, 'build'),                     // Direct build folder
+];
 
-// Fallback route - serve index.html for all non-API routes
-app.get('*', (req, res) => {
-    const indexPath1 = path.join(dashboardPath1, 'index.html');
-    const indexPath2 = path.join(dashboardPath2, 'index.html');
-    if (fs.existsSync(indexPath1)) {
-        res.sendFile(indexPath1);
-    } else if (fs.existsSync(indexPath2)) {
-        res.sendFile(indexPath2);
-    } else {
-        res.status(404).send('Dashboard not found. Make sure dashboard/build/index.html exists.');
+// Log debug info
+console.log('=== Dashboard Paths ===');
+dashboardPaths.forEach((p, i) => {
+    const exists = fs.existsSync(p);
+    console.log(`  [${i}] ${p} -> ${exists ? 'EXISTS' : 'NOT FOUND'}`);
+});
+
+// Serve static files from all possible paths
+dashboardPaths.forEach(dashboardPath => {
+    if (fs.existsSync(dashboardPath)) {
+        app.use(express.static(dashboardPath));
     }
+});
+
+// Fallback: serve index.html for any route that isn't API or auth
+app.get('*', (req, res) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) {
+        return res.status(404).send('Not Found');
+    }
+
+    for (const dashboardPath of dashboardPaths) {
+        const indexPath = path.join(dashboardPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            return res.sendFile(indexPath);
+        }
+    }
+
+    // If dashboard not found at all, show diagnostic
+    res.status(404).send(`
+        <html><body style="background:#0a0a1a;color:#e2e8f0;font-family:sans-serif;padding:40px;text-align:center;">
+        <h1>Dashboard Not Found</h1>
+        <p>Make sure <code>dashboard/build/index.html</code> exists in your project.</p>
+        <p>Paths checked:</p>
+        <ul style="text-align:left;display:inline-block;color:#94a3b8;font-size:13px;">
+            ${dashboardPaths.map(p => `<li>${p} - ${fs.existsSync(p) ? 'EXISTS' : 'NOT FOUND'}</li>`).join('')}
+        </ul>
+        </body></html>
+    `);
 });
 
 app.listen(API_PORT, '0.0.0.0', () => {
     console.log(`سيرفر API يعمل على البورت ${API_PORT}`);
+    console.log(`Dashboard URL: ${DASHBOARD_URL}`);
 });
 
 // Login to Discord
