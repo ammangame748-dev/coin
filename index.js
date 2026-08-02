@@ -844,7 +844,23 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve dashboard static files
-app.use(express.static(path.join(__dirname, '..', 'dashboard', 'build')));
+const dashboardPath1 = path.join(__dirname, '..', 'dashboard', 'build');
+const dashboardPath2 = path.join(__dirname, 'dashboard', 'build');
+app.use(express.static(dashboardPath1));
+app.use(express.static(dashboardPath2));
+
+// Fallback route - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+    const indexPath1 = path.join(dashboardPath1, 'index.html');
+    const indexPath2 = path.join(dashboardPath2, 'index.html');
+    if (fs.existsSync(indexPath1)) {
+        res.sendFile(indexPath1);
+    } else if (fs.existsSync(indexPath2)) {
+        res.sendFile(indexPath2);
+    } else {
+        res.status(404).send('Dashboard not found. Make sure dashboard/build/index.html exists.');
+    }
+});
 
 app.listen(API_PORT, '0.0.0.0', () => {
     console.log(`سيرفر API يعمل على البورت ${API_PORT}`);
