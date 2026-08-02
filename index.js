@@ -1713,7 +1713,7 @@ app.get('*', (req, res) => {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('section-' + name).classList.add('active');
-            document.querySelector(`.nav-item[data-section="${name}"]`).classList.add('active');
+            document.querySelector(\`.nav-item[data-section="\${name}"]\`).classList.add('active');
         }
 
         // Modal
@@ -1861,8 +1861,8 @@ app.get('*', (req, res) => {
 
             channels.forEach(c => {
                 const item = document.createElement('div');
-                item.className = `multi-select-item ${selectedChannels.includes(c.id) ? 'selected' : ''}`;
-                item.textContent = `#${c.name}`;
+                item.className = \`multi-select-item \${selectedChannels.includes(c.id) ? 'selected' : ''}\`;
+                item.textContent = \`#\${c.name}\`;
                 item.dataset.id = c.id;
                 item.onclick = () => {
                     if (selectedChannels.includes(c.id)) {
@@ -1880,7 +1880,7 @@ app.get('*', (req, res) => {
             channels.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.id;
-                opt.textContent = `#${c.name}`;
+                opt.textContent = \`#\${c.name}\`;
                 if (config.logChannel === c.id) opt.selected = true;
                 logChannelSelect.appendChild(opt);
             });
@@ -1924,28 +1924,28 @@ app.get('*', (req, res) => {
             items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'store-item-card';
-                card.innerHTML = `
+                card.innerHTML = \`
                     <div class="store-item-header">
-                        <div class="store-item-name">${item.name}</div>
-                        <div class="store-item-price">${item.price.toLocaleString()}</div>
+                        <div class="store-item-name">\${item.name}</div>
+                        <div class="store-item-price">\${item.price.toLocaleString()}</div>
                     </div>
-                    <div class="store-item-desc">${item.description || 'لا يوجد وصف.'}</div>
-                    ${item.roleId ? `<div class="store-item-role">دور: <@&${item.roleId}></div>` : ''}
+                    <div class="store-item-desc">\${item.description || 'لا يوجد وصف.'}</div>
+                    \${item.roleId ? \`<div class="store-item-role">دور: <@&\${item.roleId}></div>\` : ''}
                     <div class="store-item-actions">
-                        <button class="btn btn-primary" onclick="showEditItemModal(${item.id})">
+                        <button class="btn btn-primary" onclick="showEditItemModal(\${item.id})">
                             <i class="fas fa-edit"></i> تعديل
                         </button>
-                        <button class="btn btn-danger" onclick="deleteItem(${item.id})">
+                        <button class="btn btn-danger" onclick="deleteItem(\${item.id})">
                             <i class="fas fa-trash"></i> حذف
                         </button>
                     </div>
-                `;
+                \`;
                 container.appendChild(card);
             });
         }
 
         function showAddItemModal() {
-            showModal(`
+            showModal(\`
                 <div class="modal-title">إضافة منتج جديد</div>
                 <div class="form-group">
                     <label class="form-label">اسم المنتج</label>
@@ -1963,7 +1963,7 @@ app.get('*', (req, res) => {
                     <label class="form-label">الدور (اختياري)</label>
                     <select class="form-select" id="itemRole">
                         <option value="">-- اختر دور --</option>
-                        ${roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
+                        \${roles.map(r => \`<option value="\${r.id}">\${r.name}</option>\`).join('')}
                     </select>
                 </div>
                 <div class="modal-actions">
@@ -1972,7 +1972,7 @@ app.get('*', (req, res) => {
                         <i class="fas fa-plus"></i> إضافة
                     </button>
                 </div>
-            `);
+            \`);
         }
 
         async function addItem() {
@@ -2000,34 +2000,34 @@ app.get('*', (req, res) => {
             const item = config.storeItems.find(i => i.id === id);
             if (!item) { showToast('المنتج غير موجود!', 'error'); return; }
 
-            showModal(`
+            showModal(\`
                 <div class="modal-title">تعديل منتج</div>
                 <div class="form-group">
                     <label class="form-label">اسم المنتج</label>
-                    <input type="text" class="form-input" id="editName" value="${item.name}">
+                    <input type="text" class="form-input" id="editName" value="\${item.name}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">السعر</label>
-                    <input type="number" class="form-input" id="editPrice" value="${item.price}" min="0">
+                    <input type="number" class="form-input" id="editPrice" value="\${item.price}" min="0">
                 </div>
                 <div class="form-group">
                     <label class="form-label">الوصف (اختياري)</label>
-                    <textarea class="form-input" id="editDesc" rows="3">${item.description || ''}</textarea>
+                    <textarea class="form-input" id="editDesc" rows="3">\${item.description || ''}</textarea>
                 </div>
                 <div class="form-group">
                     <label class="form-label">الدور (اختياري)</label>
                     <select class="form-select" id="editRole">
                         <option value="">-- اختر دور --</option>
-                        ${roles.map(r => `<option value="${r.id}" ${item.roleId === r.id ? 'selected' : ''}>${r.name}</option>`).join('')}
+                        \${roles.map(r => \`<option value="\${r.id}" \${item.roleId === r.id ? 'selected' : ''}>\${r.name}</option>\`).join('')}
                     </select>
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="hideModal()">إلغاء</button>
-                    <button class="btn btn-primary" onclick="updateItem(${item.id})">
+                    <button class="btn btn-primary" onclick="updateItem(\${item.id})">
                         <i class="fas fa-save"></i> حفظ
                     </button>
                 </div>
-            `);
+            \`);
         }
 
         async function updateItem(id) {
@@ -2080,11 +2080,11 @@ app.get('*', (req, res) => {
             config.serverAdmins.forEach(id => {
                 const tag = document.createElement('div');
                 tag.className = 'admin-tag';
-                tag.innerHTML = `
+                tag.innerHTML = \`
                     <i class="fas fa-user-shield"></i>
-                    <span>${id}</span>
-                    <i class="fas fa-times remove-admin" onclick="removeAdmin('${id}')"></i>
-                `;
+                    <span>\${id}</span>
+                    <i class="fas fa-times remove-admin" onclick="removeAdmin('\${id}')"></i>
+                \`;
                 list.appendChild(tag);
             });
         }
@@ -2126,23 +2126,23 @@ app.get('*', (req, res) => {
             tbody.innerHTML = '';
             users.forEach((user, i) => {
                 const tr = document.createElement('tr');
-                const rc = i < 3 ? `rank-${i + 1}` : '';
-                tr.innerHTML = `
-                    <td><span class="rank-badge ${rc}">${i + 1}</span></td>
-                    <td style="font-size: 11px; color: var(--text-muted);">${user.id}</td>
-                    <td>${user.username || user.id}</td>
-                    <td><strong>${(user.points || 0).toLocaleString()}</strong></td>
+                const rc = i < 3 ? \`rank-\${i + 1}\` : '';
+                tr.innerHTML = \`
+                    <td><span class="rank-badge \${rc}">\${i + 1}</span></td>
+                    <td style="font-size: 11px; color: var(--text-muted);">\${user.id}</td>
+                    <td>\${user.username || user.id}</td>
+                    <td><strong>\${(user.points || 0).toLocaleString()}</strong></td>
                     <td>
                         <div style="display: flex; gap: 6px;">
-                            <button class="btn btn-success" style="padding: 5px 8px; font-size: 10px;" onclick="addPointsUser('${user.id}')">
+                            <button class="btn btn-success" style="padding: 5px 8px; font-size: 10px;" onclick="addPointsUser('\${user.id}')">
                                 <i class="fas fa-plus"></i> إضافة
                             </button>
-                            <button class="btn btn-danger" style="padding: 5px 8px; font-size: 10px;" onclick="removePointsUser('${user.id}')">
+                            <button class="btn btn-danger" style="padding: 5px 8px; font-size: 10px;" onclick="removePointsUser('\${user.id}')">
                                 <i class="fas fa-minus"></i> سحب
                             </button>
                         </div>
                     </td>
-                `;
+                \`;
                 tbody.appendChild(tr);
             });
         }
@@ -2197,8 +2197,8 @@ app.get('*', (req, res) => {
             // Set user info
             document.getElementById('userName').textContent = user.username;
             const avatarUrl = user.avatar
-                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
-                : `https://cdn.discordapp.com/embed/avatars/0.png`;
+                ? \`https://cdn.discordapp.com/avatars/\${user.id}/\${user.avatar}.png?size=64\`
+                : \`https://cdn.discordapp.com/embed/avatars/0.png\`;
             document.getElementById('userAvatar').src = avatarUrl;
 
             // Load data
