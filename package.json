@@ -1,11 +1,17 @@
 {
-	"dependencies": {
-		"body-parser": "^2.3.0",
-		"discord.js": "^14.27.0",
-		"dotenv": "^17.4.2",
-		"express": "^5.2.1",
-		"express-session": "^1.19.0",
-		"passport": "^0.7.0",
-		"passport-discord": "^0.1.4"
-	}
+  "name": "coin",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "discord.js": "^14.21.0",
+    "dotenv": "^16.4.7",
+    "express": "4.21.2",
+    "express-session": "^1.18.1",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4"
+  }
 }
