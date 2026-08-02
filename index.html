@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Points System Dashboard</title>
+    <title>نظام النقاط - لوحة التحكم</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --primary: #7c3aed;
@@ -22,7 +18,7 @@
             --danger: #ef4444;
             --success: #10b981;
             --bg-dark: #0a0a1a;
-            --bg-card: rgba(15, 15, 35, 0.8);
+            --bg-card: rgba(15, 15, 35, 0.85);
             --bg-glass: rgba(255, 255, 255, 0.05);
             --border: rgba(255, 255, 255, 0.1);
             --text: #e2e8f0;
@@ -37,47 +33,30 @@
             overflow-x: hidden;
         }
 
-        /* Animated background */
+        /* Background Animation */
         .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
         }
-
         .bg-animation::before {
             content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(6,182,212,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(245,158,11,0.05) 0%, transparent 50%);
             animation: bgMove 20s ease-in-out infinite;
         }
-
         @keyframes bgMove {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(1deg); }
-            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -30px); }
+            66% { transform: translate(-20px, 20px); }
         }
 
         /* Particles */
         .particle {
-            position: fixed;
-            width: 4px;
-            height: 4px;
-            background: var(--primary-light);
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: float linear infinite;
+            position: fixed; width: 4px; height: 4px;
+            background: var(--primary-light); border-radius: 50%;
+            opacity: 0.3; animation: float linear infinite;
         }
-
         @keyframes float {
             0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
             10% { opacity: 0.3; }
@@ -87,930 +66,655 @@
 
         /* Header */
         .header {
-            padding: 20px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 16px 40px;
+            display: flex; align-items: center; justify-content: space-between;
             border-bottom: 1px solid var(--border);
             backdrop-filter: blur(20px);
-            background: rgba(10, 10, 26, 0.8);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: rgba(10, 10, 26, 0.85);
+            position: sticky; top: 0; z-index: 100;
             animation: slideDown 0.5s ease;
         }
-
         @keyframes slideDown {
             from { transform: translateY(-100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
         .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
         }
-
         .header-logo i {
-            font-size: 28px;
-            color: var(--primary);
+            font-size: 28px; color: var(--primary);
             animation: pulse 2s ease-in-out infinite;
         }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .header-logo h1 {
-            font-size: 22px;
-            font-weight: 700;
+            font-size: 20px; font-weight: 700;
             background: linear-gradient(135deg, var(--primary-light), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .header-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            font-size: 13px;
+        .header-user {
+            display: flex; align-items: center; gap: 12px;
         }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--danger);
-            animation: blink 1.5s infinite;
+        .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
         }
-
-        .status-dot.online {
-            background: var(--success);
+        .user-name { font-size: 14px; font-weight: 600; }
+        .btn-logout {
+            padding: 8px 16px; border-radius: 10px; border: 1px solid var(--danger);
+            background: transparent; color: var(--danger); font-family: 'Tajawal';
+            font-size: 12px; cursor: pointer; transition: all 0.3s;
         }
+        .btn-logout:hover { background: var(--danger); color: white; }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+        /* Login Page */
+        .login-page {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; flex-direction: column; gap: 24px;
+        }
+        .login-card {
+            padding: 48px; border-radius: 24px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            backdrop-filter: blur(20px); text-align: center;
+            animation: fadeInUp 0.6s ease;
+            max-width: 420px; width: 90%;
+        }
+        .login-card i { font-size: 64px; color: var(--primary); margin-bottom: 20px; }
+        .login-card h2 {
+            font-size: 28px; margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .login-card p { color: var(--text-muted); margin-bottom: 30px; font-size: 14px; }
+        .btn-discord {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 36px; border-radius: 14px; border: none;
+            background: #5865F2; color: white; font-family: 'Tajawal';
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s; text-decoration: none;
+        }
+        .btn-discord:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.4);
         }
 
         /* Main Layout */
-        .main-container {
-            display: flex;
-            min-height: calc(100vh - 80px);
-        }
+        .main-container { display: flex; min-height: calc(100vh - 70px); }
 
         /* Sidebar */
         .sidebar {
-            width: 260px;
-            padding: 30px 20px;
+            width: 240px; padding: 24px 16px;
             border-left: 1px solid var(--border);
             backdrop-filter: blur(10px);
             background: rgba(10, 10, 26, 0.6);
             animation: slideRight 0.5s ease 0.2s both;
         }
-
         @keyframes slideRight {
             from { transform: translateX(50px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 18px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 16px; margin-bottom: 6px;
+            border-radius: 12px; cursor: pointer;
+            transition: all 0.3s ease; font-size: 14px; font-weight: 500;
             color: var(--text-muted);
         }
-
         .nav-item:hover {
-            background: var(--bg-glass);
-            color: var(--text);
-            transform: translateX(-5px);
+            background: var(--bg-glass); color: var(--text);
+            transform: translateX(-4px);
         }
-
         .nav-item.active {
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.1));
+            background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(6,182,212,0.1));
             color: var(--primary-light);
             border: 1px solid rgba(124, 58, 237, 0.3);
         }
-
-        .nav-item i {
-            width: 20px;
-            text-align: center;
+        .nav-item i { width: 20px; text-align: center; }
+        .nav-badge {
+            padding: 2px 8px; border-radius: 6px; font-size: 10px;
+            background: var(--danger); color: white; margin-right: auto;
         }
 
         /* Content */
-        .content {
-            flex: 1;
-            padding: 30px 40px;
-            overflow-y: auto;
-        }
+        .content { flex: 1; padding: 28px 36px; overflow-y: auto; }
 
-        /* Stats Cards */
+        /* Stats */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin-bottom: 28px;
             animation: fadeInUp 0.6s ease 0.3s both;
         }
-
         @keyframes fadeInUp {
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
         .stat-card {
-            padding: 24px;
-            border-radius: 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            padding: 22px; border-radius: 16px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            backdrop-filter: blur(10px); transition: all 0.3s;
+            position: relative; overflow: hidden;
         }
-
         .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            opacity: 0;
-            transition: opacity 0.3s;
+            opacity: 0; transition: opacity 0.3s;
         }
-
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-
+        .stat-card:hover::before { opacity: 1; }
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
             border-color: rgba(124, 58, 237, 0.3);
-            box-shadow: 0 10px 40px rgba(124, 58, 237, 0.1);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.1);
         }
 
         .stat-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 14px;
-            font-size: 18px;
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 12px; font-size: 16px;
         }
+        .stat-icon.purple { background: rgba(124,58,237,0.2); color: var(--primary-light); }
+        .stat-icon.cyan { background: rgba(6,182,212,0.2); color: var(--secondary); }
+        .stat-icon.amber { background: rgba(245,158,11,0.2); color: var(--accent); }
+        .stat-icon.green { background: rgba(16,185,129,0.2); color: var(--success); }
 
-        .stat-icon.purple { background: rgba(124, 58, 237, 0.2); color: var(--primary-light); }
-        .stat-icon.cyan { background: rgba(6, 182, 212, 0.2); color: var(--secondary); }
-        .stat-icon.amber { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
-        .stat-icon.green { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
+        .stat-value { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
 
         /* Sections */
-        .section {
-            display: none;
-            animation: fadeInUp 0.4s ease;
-        }
-
-        .section.active {
-            display: block;
-        }
+        .section { display: none; animation: fadeInUp 0.4s ease; }
+        .section.active { display: block; }
 
         .section-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 20px; font-weight: 700; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
         }
+        .section-title i { color: var(--primary-light); }
 
-        .section-title i {
+        /* Cards */
+        .card {
+            padding: 24px; border-radius: 16px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            backdrop-filter: blur(10px); margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 15px; font-weight: 700; margin-bottom: 18px;
+            display: flex; align-items: center; gap: 8px;
             color: var(--primary-light);
         }
 
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
+        /* Forms */
+        .form-group { margin-bottom: 18px; }
         .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block; font-size: 12px; font-weight: 600;
+            color: var(--text-muted); margin-bottom: 8px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-
         .form-input, .form-select {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-glass);
-            color: var(--text);
-            font-family: 'Tajawal', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            outline: none;
+            width: 100%; padding: 12px 16px; border-radius: 10px;
+            border: 1px solid var(--border); background: var(--bg-glass);
+            color: var(--text); font-family: 'Tajawal'; font-size: 14px;
+            transition: all 0.3s; outline: none;
         }
-
         .form-input:focus, .form-select:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-            background: rgba(124, 58, 237, 0.05);
         }
-
         .form-select {
-            cursor: pointer;
-            appearance: none;
+            cursor: pointer; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: left 14px center;
+            background-repeat: no-repeat; background-position: left 14px center;
         }
-
-        .form-select option {
-            background: #1a1a2e;
-            color: var(--text);
-        }
+        .form-select option { background: #1a1a2e; color: var(--text); }
 
         /* Buttons */
         .btn {
-            padding: 12px 24px;
-            border-radius: 12px;
-            border: none;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            padding: 10px 20px; border-radius: 10px; border: none;
+            font-family: 'Tajawal'; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
+            display: inline-flex; align-items: center; gap: 8px;
         }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.3); }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.3); }
+        .btn-success { background: linear-gradient(135deg, var(--success), #059669); color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.3); }
+        .btn-secondary { background: var(--bg-glass); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--bg-glass);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Channel/Role Selection */
+        /* Multi-select */
         .multi-select {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-glass);
-            min-height: 60px;
-            max-height: 150px;
-            overflow-y: auto;
+            display: flex; flex-wrap: wrap; gap: 8px; padding: 12px;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-glass); min-height: 56px;
+            max-height: 140px; overflow-y: auto;
         }
-
         .multi-select-item {
-            padding: 6px 12px;
-            border-radius: 8px;
-            background: rgba(124, 58, 237, 0.2);
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding: 6px 12px; border-radius: 8px;
+            background: rgba(124,58,237,0.2);
+            border: 1px solid rgba(124,58,237,0.3);
+            font-size: 12px; cursor: pointer; transition: all 0.2s;
         }
+        .multi-select-item.selected { background: var(--primary); border-color: var(--primary-light); }
 
-        .multi-select-item:hover {
-            background: rgba(124, 58, 237, 0.3);
-        }
-
-        .multi-select-item.selected {
-            background: var(--primary);
-            border-color: var(--primary-light);
-        }
-
-        /* Store Items */
+        /* Store Grid */
         .store-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px; margin-top: 16px;
         }
-
         .store-item-card {
-            padding: 24px;
-            border-radius: 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.4s ease both;
+            padding: 20px; border-radius: 14px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            transition: all 0.3s; animation: fadeInUp 0.4s ease both;
         }
-
-        .store-item-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(124, 58, 237, 0.3);
-        }
-
-        .store-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .store-item-name {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
+        .store-item-card:hover { transform: translateY(-3px); border-color: rgba(124,58,237,0.3); }
+        .store-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .store-item-name { font-size: 16px; font-weight: 700; }
         .store-item-price {
-            padding: 4px 12px;
-            border-radius: 20px;
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--accent);
-            font-size: 13px;
-            font-weight: 600;
+            padding: 4px 10px; border-radius: 16px;
+            background: rgba(245,158,11,0.2); color: var(--accent);
+            font-size: 12px; font-weight: 600;
         }
-
-        .store-item-desc {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 14px;
-            line-height: 1.6;
-        }
-
+        .store-item-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6; }
         .store-item-role {
-            font-size: 12px;
-            color: var(--secondary);
-            margin-bottom: 14px;
-            padding: 6px 10px;
-            background: rgba(6, 182, 212, 0.1);
-            border-radius: 8px;
-            display: inline-block;
+            font-size: 11px; color: var(--secondary); margin-bottom: 12px;
+            padding: 5px 10px; background: rgba(6,182,212,0.1); border-radius: 8px; display: inline-block;
         }
-
-        .store-item-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .store-item-actions { display: flex; gap: 8px; }
 
         /* Users Table */
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .users-table th, .users-table td {
-            padding: 14px 18px;
-            text-align: right;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .users-table th {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .users-table td {
-            font-size: 14px;
-        }
-
-        .users-table tr:hover {
-            background: var(--bg-glass);
-        }
-
+        .users-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        .users-table th, .users-table td { padding: 12px 16px; text-align: right; border-bottom: 1px solid var(--border); }
+        .users-table th { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .users-table td { font-size: 13px; }
+        .users-table tr:hover { background: var(--bg-glass); }
         .rank-badge {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700;
         }
-
         .rank-1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
         .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #000; }
         .rank-3 { background: linear-gradient(135deg, #b45309, #92400e); color: #fff; }
 
-        /* Admin List */
-        .admin-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
+        /* Admin Tags */
+        .admin-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .admin-tag {
-            padding: 8px 16px;
-            border-radius: 10px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 7px 14px; border-radius: 10px;
+            background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+            font-size: 12px; display: flex; align-items: center; gap: 8px;
         }
-
-        .admin-tag .remove-admin {
-            cursor: pointer;
-            color: var(--danger);
-            transition: transform 0.2s;
-        }
-
-        .admin-tag .remove-admin:hover {
-            transform: scale(1.2);
-        }
+        .admin-tag .remove-admin { cursor: pointer; color: var(--danger); }
 
         /* Toast */
         .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
+            position: fixed; top: 20px; left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            padding: 16px 28px;
-            border-radius: 12px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            transition: transform 0.4s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
+            padding: 14px 24px; border-radius: 12px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            backdrop-filter: blur(20px); z-index: 1000;
+            transition: transform 0.4s ease; font-size: 13px;
         }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
+        .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.success { border-color: var(--success); }
         .toast.error { border-color: var(--danger); }
 
-        /* Card container */
-        .card {
-            padding: 28px;
-            border-radius: 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            margin-bottom: 20px;
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
         }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 28px; width: 90%; max-width: 480px;
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--primary-light);
-        }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .content {
-                padding: 20px;
-            }
-            .header {
-                padding: 15px 20px;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+            .sidebar { display: none; }
+            .content { padding: 16px; }
+            .header { padding: 12px 16px; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(124, 58, 237, 0.3);
-            border-radius: 3px;
+        /* Hidden */
+        .hidden { display: none !important; }
+
+        /* Admin badge */
+        .admin-badge {
+            padding: 3px 10px; border-radius: 6px; font-size: 10px;
+            background: rgba(239,68,68,0.2); color: var(--danger);
+            border: 1px solid rgba(239,68,68,0.3);
         }
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+        /* Points name input */
+        .points-name-preview {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 12px 20px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.1));
+            border: 1px solid var(--border); margin-top: 10px;
         }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            width: 90%;
-            max-width: 500px;
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 24px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-
-        /* Points animation */
-        .points-value {
-            display: inline-block;
-            animation: countUp 0.5s ease;
-        }
-
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .points-name-preview span {
+            font-size: 22px; font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
-
-    <!-- Particles -->
     <div id="particles"></div>
-
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
-
-    <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal" id="modalContent"></div>
     </div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="header-logo">
-            <i class="fas fa-coins"></i>
-            <h1>Points System Dashboard</h1>
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="login-page">
+        <div class="login-card">
+            <i class="fab fa-discord"></i>
+            <h2>نظام النقاط</h2>
+            <p>سجّل دخولك بحساب ديسكورد للوصول إلى لوحة التحكم</p>
+            <a href="/auth/discord" class="btn-discord">
+                <i class="fab fa-discord"></i> تسجيل الدخول بديسكورد
+            </a>
         </div>
-        <div class="header-status">
-            <div class="status-dot" id="statusDot"></div>
-            <span id="statusText">Connecting...</span>
-        </div>
-    </header>
+    </div>
 
-    <!-- Main -->
-    <div class="main-container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="nav-item active" data-section="overview" onclick="showSection('overview')">
-                <i class="fas fa-chart-pie"></i>
-                <span>Overview</span>
+    <!-- DASHBOARD (hidden until login) -->
+    <div id="dashboard" class="hidden">
+        <header class="header">
+            <div class="header-logo">
+                <i class="fas fa-coins"></i>
+                <h1>نظام النقاط</h1>
             </div>
-            <div class="nav-item" data-section="settings" onclick="showSection('settings')">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </div>
-            <div class="nav-item" data-section="channels" onclick="showSection('channels')">
-                <i class="fas fa-hashtag"></i>
-                <span>Channels</span>
-            </div>
-            <div class="nav-item" data-section="store" onclick="showSection('store')">
-                <i class="fas fa-store"></i>
-                <span>Store</span>
-            </div>
-            <div class="nav-item" data-section="admins" onclick="showSection('admins')">
-                <i class="fas fa-user-shield"></i>
-                <span>Admins</span>
-            </div>
-            <div class="nav-item" data-section="users" onclick="showSection('users')">
-                <i class="fas fa-users"></i>
-                <span>Users</span>
-            </div>
-        </nav>
-
-        <!-- Content -->
-        <main class="content">
-            <!-- Overview Section -->
-            <div class="section active" id="section-overview">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon purple"><i class="fas fa-users"></i></div>
-                        <div class="stat-value" id="statUsers">0</div>
-                        <div class="stat-label">Total Users</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon cyan"><i class="fas fa-coins"></i></div>
-                        <div class="stat-value" id="statPoints">0</div>
-                        <div class="stat-label">Total Points</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon amber"><i class="fas fa-store"></i></div>
-                        <div class="stat-value" id="statStore">0</div>
-                        <div class="stat-label">Store Items</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green"><i class="fas fa-server"></i></div>
-                        <div class="stat-value" id="statGuild">N/A</div>
-                        <div class="stat-label">Connected Server</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-info-circle"></i> Quick Info</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
-                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Points Name</div>
-                            <div style="font-size: 20px; font-weight: 700;" id="infoPointsName">FBI</div>
-                        </div>
-                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
-                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Points Per Message</div>
-                            <div style="font-size: 20px; font-weight: 700;" id="infoPointsPerMsg">1</div>
-                        </div>
-                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
-                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Allowed Channels</div>
-                            <div style="font-size: 20px; font-weight: 700;" id="infoChannels">0</div>
-                        </div>
-                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
-                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Log Channel</div>
-                            <div style="font-size: 20px; font-weight: 700;" id="infoLogChannel">Not Set</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Section -->
-            <div class="section" id="section-settings">
-                <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-pen"></i> Points Configuration</div>
-
-                    <div class="form-group">
-                        <label class="form-label">Points Name</label>
-                        <input type="text" class="form-input" id="settingsPointsName" placeholder="e.g., FBI, RZ, Coins...">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Points Per Message</label>
-                        <input type="number" class="form-input" id="settingsPointsPerMsg" placeholder="e.g., 1" min="0">
-                    </div>
-
-                    <button class="btn btn-primary" onclick="saveSettings()">
-                        <i class="fas fa-save"></i> Save Settings
-                    </button>
-                </div>
-            </div>
-
-            <!-- Channels Section -->
-            <div class="section" id="section-channels">
-                <div class="section-title"><i class="fas fa-hashtag"></i> Channels</div>
-
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-comment-dots"></i> Allowed Channels</div>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-                        Select the channels where the bot will respond to commands. Leave empty for all channels.
-                    </p>
-                    <div class="multi-select" id="allowedChannelsSelect"></div>
-
-                    <button class="btn btn-primary" style="margin-top: 14px;" onclick="saveChannels()">
-                        <i class="fas fa-save"></i> Save Channels
-                    </button>
-                </div>
-
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-title"><i class="fas fa-file-alt"></i> Log Channel</div>
-                    <div class="form-group">
-                        <select class="form-select" id="logChannelSelect">
-                            <option value="">-- Select Log Channel --</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveLogChannel()">
-                        <i class="fas fa-save"></i> Save Log Channel
-                    </button>
-                </div>
-
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-title"><i class="fas fa-shopping-cart"></i> Store Channel</div>
-                    <div class="form-group">
-                        <select class="form-select" id="storeChannelSelect">
-                            <option value="">-- Select Store Channel --</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveStoreChannel()">
-                        <i class="fas fa-save"></i> Save Store Channel
-                    </button>
-                </div>
-            </div>
-
-            <!-- Store Section -->
-            <div class="section" id="section-store">
-                <div class="section-title"><i class="fas fa-store"></i> Store Management</div>
-
-                <button class="btn btn-success" onclick="showAddItemModal()">
-                    <i class="fas fa-plus"></i> Add Item
+            <div class="header-user">
+                <img id="userAvatar" class="user-avatar" src="" alt="">
+                <span id="userName" class="user-name"></span>
+                <span id="adminBadge" class="admin-badge hidden">أدمن</span>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> خروج
                 </button>
-
-                <div class="store-grid" id="storeItemsContainer"></div>
             </div>
+        </header>
 
-            <!-- Admins Section -->
-            <div class="section" id="section-admins">
-                <div class="section-title"><i class="fas fa-user-shield"></i> Admin Management</div>
+        <div class="main-container">
+            <!-- Sidebar -->
+            <nav class="sidebar">
+                <div class="nav-item active" data-section="overview" onclick="showSection('overview')">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </div>
+                <div class="nav-item" data-section="my-settings" onclick="showSection('my-settings')">
+                    <i class="fas fa-user-cog"></i>
+                    <span>إعداداتي</span>
+                </div>
+                <div class="nav-item admin-only" data-section="server-settings" onclick="showSection('server-settings')">
+                    <i class="fas fa-server"></i>
+                    <span>إعدادات السيرفر</span>
+                </div>
+                <div class="nav-item admin-only" data-section="channels" onclick="showSection('channels')">
+                    <i class="fas fa-hashtag"></i>
+                    <span>القنوات</span>
+                </div>
+                <div class="nav-item" data-section="store" onclick="showSection('store')">
+                    <i class="fas fa-store"></i>
+                    <span>المتجر</span>
+                </div>
+                <div class="nav-item admin-only" data-section="admins" onclick="showSection('admins')">
+                    <i class="fas fa-user-shield"></i>
+                    <span>الأدمنز</span>
+                </div>
+                <div class="nav-item admin-only" data-section="users" onclick="showSection('users')">
+                    <i class="fas fa-users"></i>
+                    <span>المستخدمين</span>
+                </div>
+            </nav>
 
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-user-plus"></i> Add Admin</div>
-                    <div class="form-group">
-                        <select class="form-select" id="adminSelect">
-                            <option value="">-- Select Member --</option>
-                        </select>
+            <!-- Content -->
+            <main class="content">
+                <!-- Overview -->
+                <div class="section active" id="section-overview">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon purple"><i class="fas fa-coins"></i></div>
+                            <div class="stat-value" id="statMyPoints">0</div>
+                            <div class="stat-label">نقاطي</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon cyan"><i class="fas fa-users"></i></div>
+                            <div class="stat-value" id="statUsers">0</div>
+                            <div class="stat-label">إجمالي المستخدمين</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon amber"><i class="fas fa-gem"></i></div>
+                            <div class="stat-value" id="statTotalPoints">0</div>
+                            <div class="stat-label">إجمالي النقاط</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green"><i class="fas fa-store"></i></div>
+                            <div class="stat-value" id="statStore">0</div>
+                            <div class="stat-label">منتجات المتجر</div>
+                        </div>
                     </div>
-                    <button class="btn btn-primary" onclick="addAdmin()">
-                        <i class="fas fa-plus"></i> Add as Admin
-                    </button>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-info-circle"></i> معلومات سريعة</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">اسم نقاطك</div>
+                                <div style="font-size: 18px; font-weight: 700;" id="infoMyPointsName">COIN</div>
+                            </div>
+                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">نقاط لكل رسالة</div>
+                                <div style="font-size: 18px; font-weight: 700;" id="infoPointsPerMsg">1</div>
+                            </div>
+                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">القنوات المسموحة</div>
+                                <div style="font-size: 18px; font-weight: 700;" id="infoChannels">0</div>
+                            </div>
+                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">قناة اللوغ</div>
+                                <div style="font-size: 18px; font-weight: 700;" id="infoLog">لم يتم تحديدها</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-title"><i class="fas fa-list"></i> Current Admins</div>
-                    <div class="admin-list" id="adminList"></div>
-                </div>
-            </div>
+                <!-- My Settings (Personal - everyone) -->
+                <div class="section" id="section-my-settings">
+                    <div class="section-title"><i class="fas fa-user-cog"></i> إعداداتي الشخصية</div>
 
-            <!-- Users Section -->
-            <div class="section" id="section-users">
-                <div class="section-title"><i class="fas fa-users"></i> Users Leaderboard</div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-pen"></i> اسم النقاط تبعك</div>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+                            اختار أي اسم بدك ياه لنقاطك. لما تكتب اسم النقاط بالشات بيطلعلك نقاطك.
+                        </p>
+                        <div class="form-group">
+                            <label class="form-label">اسم النقاط</label>
+                            <input type="text" class="form-input" id="myPointsName" placeholder="مثال: FBI, COIN, RZ...">
+                        </div>
+                        <div class="points-name-preview">
+                            <i class="fas fa-coins" style="color: var(--accent);"></i>
+                            <span id="pointsNamePreview">COIN</span>
+                        </div>
+                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="savePersonalSettings()">
+                            <i class="fas fa-save"></i> حفظ
+                        </button>
+                    </div>
 
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="btn btn-danger" onclick="resetAllPoints()">
-                        <i class="fas fa-trash"></i> Reset All Points
-                    </button>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-coins"></i> نقاطي الحالية</div>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="font-size: 36px; font-weight: 900; color: var(--accent);" id="myPointsDisplay">0</div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-muted);">الرصيد الحالي</div>
+                                <div style="font-size: 14px;" id="myPointsLabel">COIN</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div style="overflow-x: auto;">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>User ID</th>
-                                <th>Username</th>
-                                <th>Points</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody"></tbody>
-                    </table>
+                <!-- Server Settings (Admin only) -->
+                <div class="section" id="section-server-settings">
+                    <div class="section-title"><i class="fas fa-server"></i> إعدادات السيرفر</div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-cog"></i> إعدادات عامة</div>
+
+                        <div class="form-group">
+                            <label class="form-label">النقاط الافتراضية لكل رسالة</label>
+                            <input type="number" class="form-input" id="serverPointsPerMsg" placeholder="1" min="0">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="saveServerSettings()">
+                            <i class="fas fa-save"></i> حفظ الإعدادات
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </main>
+
+                <!-- Channels (Admin only) -->
+                <div class="section" id="section-channels">
+                    <div class="section-title"><i class="fas fa-hashtag"></i> القنوات</div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-comment-dots"></i> القنوات المسموحة</div>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+                            اختر القنوات اللي البوت يرد فيها. اتركها فاضية لو بدك كل القنوات.
+                        </p>
+                        <div class="multi-select" id="allowedChannelsSelect"></div>
+                        <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveChannels()">
+                            <i class="fas fa-save"></i> حفظ القنوات
+                        </button>
+                    </div>
+
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-title"><i class="fas fa-file-alt"></i> قناة اللوغ</div>
+                        <div class="form-group">
+                            <select class="form-select" id="logChannelSelect">
+                                <option value="">-- اختر قناة اللوغ --</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveLogChannel()">
+                            <i class="fas fa-save"></i> حفظ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Store -->
+                <div class="section" id="section-store">
+                    <div class="section-title"><i class="fas fa-store"></i> المتجر</div>
+
+                    <div id="adminStoreActions">
+                        <button class="btn btn-success" onclick="showAddItemModal()">
+                            <i class="fas fa-plus"></i> إضافة منتج
+                        </button>
+                    </div>
+
+                    <div class="store-grid" id="storeItemsContainer"></div>
+                </div>
+
+                <!-- Admins (Admin only) -->
+                <div class="section" id="section-admins">
+                    <div class="section-title"><i class="fas fa-user-shield"></i> إدارة الأدمنز</div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-user-plus"></i> إضافة أدمن</div>
+                        <div class="form-group">
+                            <select class="form-select" id="adminSelect">
+                                <option value="">-- اختر عضو --</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="addAdmin()">
+                            <i class="fas fa-plus"></i> إضافة كأدمن
+                        </button>
+                    </div>
+
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-title"><i class="fas fa-list"></i> الأدمنز الحاليين</div>
+                        <div class="admin-list" id="adminList"></div>
+                    </div>
+                </div>
+
+                <!-- Users (Admin only) -->
+                <div class="section" id="section-users">
+                    <div class="section-title"><i class="fas fa-users"></i> جدول المستخدمين</div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                        <button class="btn btn-danger" onclick="resetAllPoints()">
+                            <i class="fas fa-trash"></i> ريست جميع النقاط
+                        </button>
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>الترتيب</th>
+                                    <th>آيدي المستخدم</th>
+                                    <th>الاسم</th>
+                                    <th>النقاط</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script>
-        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3001' : window.location.origin + '/api';
-
+        const API_BASE = '';
         let config = {};
         let channels = [];
         let roles = [];
         let members = [];
         let selectedChannels = [];
+        let currentUser = null;
+        let isAdmin = false;
 
         // Create particles
         function createParticles() {
             const container = document.getElementById('particles');
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                particle.style.animationDelay = (Math.random() * 10) + 's';
-                particle.style.width = (Math.random() * 4 + 2) + 'px';
-                particle.style.height = particle.style.width;
-                container.appendChild(particle);
+            for (let i = 0; i < 15; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                p.style.animationDelay = (Math.random() * 10) + 's';
+                p.style.width = (Math.random() * 4 + 2) + 'px';
+                p.style.height = p.style.width;
+                container.appendChild(p);
             }
         }
         createParticles();
 
-        // Toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => toast.classList.remove('show'), 3000);
+        // Toast
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type;
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // Show section
+        // Section navigation
         function showSection(name) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1023,155 +727,148 @@
             document.getElementById('modalContent').innerHTML = html;
             document.getElementById('modalOverlay').classList.add('active');
         }
-
         function hideModal() {
             document.getElementById('modalOverlay').classList.remove('active');
         }
-
         document.getElementById('modalOverlay').addEventListener('click', function(e) {
             if (e.target === this) hideModal();
         });
 
-        // API Functions
+        // API calls
+        async function fetchMe() {
+            try {
+                const res = await fetch(API_BASE + '/api/me');
+                const data = await res.json();
+                if (!data.loggedIn) return null;
+                currentUser = data.user;
+                return data.user;
+            } catch { return null; }
+        }
+
         async function fetchConfig() {
             try {
-                const res = await fetch(API_BASE + '/config');
+                const res = await fetch(API_BASE + '/api/config');
+                if (!res.ok) return;
                 config = await res.json();
                 updateOverview();
-                updateSettingsForm();
-                updateAdminList();
-            } catch (err) {
-                console.error('Fetch config error:', err);
-            }
+                updatePersonalForm();
+            } catch (err) { console.error(err); }
         }
 
         async function fetchChannels() {
             try {
-                const res = await fetch(API_BASE + '/channels');
+                const res = await fetch(API_BASE + '/api/channels');
                 channels = await res.json();
                 updateChannelSelects();
-            } catch (err) {
-                console.error('Fetch channels error:', err);
-            }
+            } catch { console.error('channels error'); }
         }
 
         async function fetchRoles() {
             try {
-                const res = await fetch(API_BASE + '/roles');
+                const res = await fetch(API_BASE + '/api/roles');
                 roles = await res.json();
-            } catch (err) {
-                console.error('Fetch roles error:', err);
-            }
+            } catch { console.error('roles error'); }
         }
 
         async function fetchMembers() {
             try {
-                const res = await fetch(API_BASE + '/members');
+                const res = await fetch(API_BASE + '/api/members');
                 members = await res.json();
                 updateMemberSelect();
-            } catch (err) {
-                console.error('Fetch members error:', err);
-            }
+            } catch { console.error('members error'); }
         }
 
         async function fetchUsers() {
             try {
-                const res = await fetch(API_BASE + '/users');
-                const users = await res.json();
-                updateUsersTable(users);
-            } catch (err) {
-                console.error('Fetch users error:', err);
-            }
+                const res = await fetch(API_BASE + '/api/users');
+                updateUsersTable(await res.json());
+            } catch { console.error('users error'); }
         }
 
         async function fetchStoreItems() {
             try {
-                const res = await fetch(API_BASE + '/store');
-                const items = await res.json();
-                updateStoreItems(items);
-            } catch (err) {
-                console.error('Fetch store error:', err);
-            }
+                const res = await fetch(API_BASE + '/api/store');
+                updateStoreItems(await res.json());
+            } catch { console.error('store error'); }
         }
 
-        // Health check
-        async function checkHealth() {
-            try {
-                const res = await fetch(API_BASE + '/health');
-                const data = await res.json();
-                const dot = document.getElementById('statusDot');
-                const text = document.getElementById('statusText');
-                if (data.botOnline) {
-                    dot.classList.add('online');
-                    text.textContent = 'Online';
-                } else {
-                    dot.classList.remove('online');
-                    text.textContent = 'Offline';
-                }
-            } catch (err) {
-                document.getElementById('statusDot').classList.remove('online');
-                document.getElementById('statusText').textContent = 'Disconnected';
-            }
-        }
-
-        // Update Overview
+        // Update UI
         function updateOverview() {
+            document.getElementById('statMyPoints').textContent = (config.myPoints || 0).toLocaleString();
             document.getElementById('statUsers').textContent = config.totalUsers || 0;
-            document.getElementById('statPoints').textContent = (config.totalPoints || 0).toLocaleString();
+            document.getElementById('statTotalPoints').textContent = (config.totalPoints || 0).toLocaleString();
             document.getElementById('statStore').textContent = (config.storeItems || []).length;
-            document.getElementById('statGuild').textContent = config.guildId ? 'Connected' : 'N/A';
-            document.getElementById('infoPointsName').textContent = config.pointsName || 'FBI';
+            document.getElementById('infoMyPointsName').textContent = config.pointsName || 'COIN';
             document.getElementById('infoPointsPerMsg').textContent = config.pointsPerMessage || 1;
             document.getElementById('infoChannels').textContent = (config.allowedChannels || []).length;
-            document.getElementById('infoLogChannel').textContent = config.logChannel ? 'Set' : 'Not Set';
+            document.getElementById('infoLog').textContent = config.logChannel ? 'تم تحديدها' : 'لم يتم تحديدها';
+            document.getElementById('myPointsDisplay').textContent = (config.myPoints || 0).toLocaleString();
+            document.getElementById('myPointsLabel').textContent = config.pointsName || 'COIN';
         }
 
-        // Update Settings Form
-        function updateSettingsForm() {
-            document.getElementById('settingsPointsName').value = config.pointsName || '';
-            document.getElementById('settingsPointsPerMsg').value = config.pointsPerMessage || 1;
+        function updatePersonalForm() {
+            document.getElementById('myPointsName').value = config.pointsName || 'COIN';
+            document.getElementById('pointsNamePreview').textContent = config.pointsName || 'COIN';
         }
 
-        // Save Settings
-        async function saveSettings() {
-            const pointsName = document.getElementById('settingsPointsName').value.trim();
-            const pointsPerMessage = parseInt(document.getElementById('settingsPointsPerMsg').value) || 0;
+        function showAdminSections() {
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+        }
 
-            if (!pointsName) {
-                showToast('Points name cannot be empty!', 'error');
-                return;
+        function hideAdminSections() {
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+        }
+
+        // Points name preview
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'myPointsName') {
+                document.getElementById('pointsNamePreview').textContent = e.target.value || 'COIN';
             }
+        });
+
+        // Save personal settings
+        async function savePersonalSettings() {
+            const name = document.getElementById('myPointsName').value.trim();
+            if (!name) { showToast('اسم النقاط مطلوب!', 'error'); return; }
 
             try {
-                await fetch(API_BASE + '/config', {
+                await fetch(API_BASE + '/api/config/personal', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pointsName, pointsPerMessage })
+                    body: JSON.stringify({ pointsName: name })
                 });
-                config.pointsName = pointsName;
-                config.pointsPerMessage = pointsPerMessage;
+                config.pointsName = name;
                 updateOverview();
-                showToast('Settings saved successfully!');
-            } catch (err) {
-                showToast('Failed to save settings!', 'error');
-            }
+                showToast('تم حفظ اسم النقاط!');
+            } catch { showToast('فشل الحفظ!', 'error'); }
         }
 
-        // Update Channel Selects
-        function updateChannelSelects() {
-            const allowedSelect = document.getElementById('allowedChannelsSelect');
-            const logSelect = document.getElementById('logChannelSelect');
-            const storeSelect = document.getElementById('storeChannelSelect');
+        // Save server settings (admin)
+        async function saveServerSettings() {
+            const ppm = parseInt(document.getElementById('serverPointsPerMsg').value) || 0;
+            try {
+                await fetch(API_BASE + '/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pointsPerMessage: ppm })
+                });
+                config.pointsPerMessage = ppm;
+                updateOverview();
+                showToast('تم حفظ الإعدادات!');
+            } catch { showToast('فشل الحفظ!', 'error'); }
+        }
 
-            allowedSelect.innerHTML = '';
-            logSelect.innerHTML = '<option value="">-- Select Log Channel --</option>';
-            storeSelect.innerHTML = '<option value="">-- Select Store Channel --</option>';
+        // Channels
+        function updateChannelSelects() {
+            const sel = document.getElementById('allowedChannelsSelect');
+            const logSel = document.getElementById('logChannelSelect');
+            sel.innerHTML = '';
+            logSel.innerHTML = '<option value="">-- اختر قناة اللوغ --</option>';
 
             channels.forEach(ch => {
-                // Multi-select for allowed channels
                 const item = document.createElement('div');
                 item.className = 'multi-select-item' + ((config.allowedChannels || []).includes(ch.id) ? ' selected' : '');
-                item.innerHTML = `<i class="fas fa-hashtag"></i> ${ch.name}`;
+                item.textContent = '#' + ch.name;
                 item.onclick = () => {
                     item.classList.toggle('selected');
                     if (item.classList.contains('selected')) {
@@ -1180,103 +877,71 @@
                         selectedChannels = selectedChannels.filter(id => id !== ch.id);
                     }
                 };
-                allowedSelect.appendChild(item);
+                sel.appendChild(item);
 
-                // Single select for log
                 const opt = document.createElement('option');
-                opt.value = ch.id;
-                opt.textContent = ch.name;
-                logSelect.appendChild(opt);
-
-                const opt2 = document.createElement('option');
-                opt2.value = ch.id;
-                opt2.textContent = ch.name;
-                storeSelect.appendChild(opt2);
+                opt.value = ch.id; opt.textContent = ch.name;
+                logSel.appendChild(opt);
             });
 
             selectedChannels = [...(config.allowedChannels || [])];
-
-            // Set current values
-            if (config.logChannel) logSelect.value = config.logChannel;
-            if (config.storeChannel) storeSelect.value = config.storeChannel;
+            if (config.logChannel) logSel.value = config.logChannel;
         }
 
-        // Save Channels
         async function saveChannels() {
             try {
-                await fetch(API_BASE + '/config', {
+                await fetch(API_BASE + '/api/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ allowedChannels: selectedChannels })
                 });
                 config.allowedChannels = selectedChannels;
                 updateOverview();
-                showToast('Channels saved!');
-            } catch (err) {
-                showToast('Failed to save!', 'error');
-            }
+                showToast('تم حفظ القنوات!');
+            } catch { showToast('فشل الحفظ!', 'error'); }
         }
 
-        // Save Log Channel
         async function saveLogChannel() {
-            const logChannel = document.getElementById('logChannelSelect').value;
+            const lc = document.getElementById('logChannelSelect').value;
             try {
-                await fetch(API_BASE + '/config', {
+                await fetch(API_BASE + '/api/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ logChannel })
+                    body: JSON.stringify({ logChannel: lc })
                 });
-                config.logChannel = logChannel;
+                config.logChannel = lc;
                 updateOverview();
-                showToast('Log channel saved!');
-            } catch (err) {
-                showToast('Failed to save!', 'error');
-            }
+                showToast('تم حفظ قناة اللوغ!');
+            } catch { showToast('فشل الحفظ!', 'error'); }
         }
 
-        // Save Store Channel
-        async function saveStoreChannel() {
-            const storeChannel = document.getElementById('storeChannelSelect').value;
-            try {
-                await fetch(API_BASE + '/config', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ storeChannel })
-                });
-                config.storeChannel = storeChannel;
-                showToast('Store channel saved!');
-            } catch (err) {
-                showToast('Failed to save!', 'error');
-            }
-        }
-
-        // Store Items
+        // Store
         function updateStoreItems(items) {
             const container = document.getElementById('storeItemsContainer');
             container.innerHTML = '';
 
             if (items.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">No store items yet. Click "Add Item" to create one.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">لا توجد منتجات بالمتجر.</p>';
                 return;
             }
 
-            items.forEach((item, index) => {
+            items.forEach((item, i) => {
                 const card = document.createElement('div');
                 card.className = 'store-item-card';
-                card.style.animationDelay = (index * 0.1) + 's';
+                card.style.animationDelay = (i * 0.1) + 's';
                 card.innerHTML = `
                     <div class="store-item-header">
                         <div class="store-item-name">${item.name}</div>
-                        <div class="store-item-price">${item.price.toLocaleString()} ${config.pointsName || 'Points'}</div>
+                        <div class="store-item-price">${item.price.toLocaleString()} نقطة</div>
                     </div>
-                    <div class="store-item-desc">${item.description || 'No description'}</div>
-                    ${item.roleId ? `<div class="store-item-role"><i class="fas fa-crown"></i> Role: ${item.roleId}</div>` : ''}
+                    <div class="store-item-desc">${item.description || 'لا يوجد وصف'}</div>
+                    ${item.roleId ? `<div class="store-item-role"><i class="fas fa-crown"></i> رتبة: ${item.roleId}</div>` : ''}
                     <div class="store-item-actions">
                         <button class="btn btn-secondary" onclick="showEditItemModal(${item.id})">
-                            <i class="fas fa-edit"></i> Edit
+                            <i class="fas fa-edit"></i> تعديل
                         </button>
                         <button class="btn btn-danger" onclick="deleteItem(${item.id})">
-                            <i class="fas fa-trash"></i> Delete
+                            <i class="fas fa-trash"></i> حذف
                         </button>
                     </div>
                 `;
@@ -1284,34 +949,33 @@
             });
         }
 
-        // Add Item Modal
         function showAddItemModal() {
-            const roleOptions = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+            const roleOpts = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
             showModal(`
-                <div class="modal-title">Add Store Item</div>
+                <div class="modal-title">إضافة منتج للمتجر</div>
                 <div class="form-group">
-                    <label class="form-label">Item Name</label>
-                    <input type="text" class="form-input" id="modalItemName" placeholder="e.g., VIP Role">
+                    <label class="form-label">اسم المنتج</label>
+                    <input type="text" class="form-input" id="modalItemName" placeholder="مثال: VIP">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Price (in ${config.pointsName || 'points'})</label>
-                    <input type="number" class="form-input" id="modalItemPrice" placeholder="e.g., 5000">
+                    <label class="form-label">السعر (بالنقاط)</label>
+                    <input type="number" class="form-input" id="modalItemPrice" placeholder="مثال: 5000">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <input type="text" class="form-input" id="modalItemDesc" placeholder="Details about this item...">
+                    <label class="form-label">التفاصيل / الوصف</label>
+                    <input type="text" class="form-input" id="modalItemDesc" placeholder="اكتب تفاصيل المنتج...">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Discord Role (Optional)</label>
+                    <label class="form-label">رتبة ديسكورد (اختياري)</label>
                     <select class="form-select" id="modalItemRole">
-                        <option value="">-- None --</option>
-                        ${roleOptions}
+                        <option value="">-- بدون رتبة --</option>
+                        ${roleOpts}
                     </select>
                 </div>
                 <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+                    <button class="btn btn-secondary" onclick="hideModal()">إلغاء</button>
                     <button class="btn btn-success" onclick="addItem()">
-                        <i class="fas fa-plus"></i> Add Item
+                        <i class="fas fa-plus"></i> إضافة
                     </button>
                 </div>
             `);
@@ -1320,194 +984,170 @@
         async function addItem() {
             const name = document.getElementById('modalItemName').value.trim();
             const price = parseInt(document.getElementById('modalItemPrice').value) || 0;
-            const description = document.getElementById('modalItemDesc').value.trim();
+            const desc = document.getElementById('modalItemDesc').value.trim();
             const roleId = document.getElementById('modalItemRole').value || null;
 
-            if (!name) { showToast('Name is required!', 'error'); return; }
-            if (price <= 0) { showToast('Price must be greater than 0!', 'error'); return; }
+            if (!name) { showToast('اسم المنتج مطلوب!', 'error'); return; }
+            if (price <= 0) { showToast('السعر لازم يكون أكبر من 0!', 'error'); return; }
 
             try {
-                await fetch(API_BASE + '/store', {
+                await fetch(API_BASE + '/api/store', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, price, description, roleId })
+                    body: JSON.stringify({ name, price, description: desc, roleId })
                 });
                 hideModal();
                 fetchStoreItems();
                 fetchConfig();
-                showToast('Item added successfully!');
-            } catch (err) {
-                showToast('Failed to add item!', 'error');
-            }
+                showToast('تم إضافة المنتج!');
+            } catch { showToast('فشل الإضافة!', 'error'); }
         }
 
-        // Edit Item Modal
         function showEditItemModal(itemId) {
             const item = config.storeItems.find(i => i.id === itemId);
             if (!item) return;
-
-            const roleOptions = roles.map(r =>
+            const roleOpts = roles.map(r =>
                 `<option value="${r.id}" ${r.id === item.roleId ? 'selected' : ''}>${r.name}</option>`
             ).join('');
-
             showModal(`
-                <div class="modal-title">Edit Store Item</div>
+                <div class="modal-title">تعديل المنتج</div>
                 <div class="form-group">
-                    <label class="form-label">Item Name</label>
-                    <input type="text" class="form-input" id="editItemName" value="${item.name}">
+                    <label class="form-label">اسم المنتج</label>
+                    <input type="text" class="form-input" id="editName" value="${item.name}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Price</label>
-                    <input type="number" class="form-input" id="editItemPrice" value="${item.price}">
+                    <label class="form-label">السعر</label>
+                    <input type="number" class="form-input" id="editPrice" value="${item.price}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <input type="text" class="form-input" id="editItemDesc" value="${item.description || ''}">
+                    <label class="form-label">التفاصيل</label>
+                    <input type="text" class="form-input" id="editDesc" value="${item.description || ''}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Discord Role</label>
-                    <select class="form-select" id="editItemRole">
-                        <option value="">-- None --</option>
-                        ${roleOptions}
+                    <label class="form-label">رتبة ديسكورد</label>
+                    <select class="form-select" id="editRole">
+                        <option value="">-- بدون رتبة --</option>
+                        ${roleOpts}
                     </select>
                 </div>
                 <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+                    <button class="btn btn-secondary" onclick="hideModal()">إلغاء</button>
                     <button class="btn btn-primary" onclick="updateItem(${item.id})">
-                        <i class="fas fa-save"></i> Save
+                        <i class="fas fa-save"></i> حفظ
                     </button>
                 </div>
             `);
         }
 
-        async function updateItem(itemId) {
-            const name = document.getElementById('editItemName').value.trim();
-            const price = parseInt(document.getElementById('editItemPrice').value) || 0;
-            const description = document.getElementById('editItemDesc').value.trim();
-            const roleId = document.getElementById('editItemRole').value || null;
+        async function updateItem(id) {
+            const name = document.getElementById('editName').value.trim();
+            const price = parseInt(document.getElementById('editPrice').value) || 0;
+            const desc = document.getElementById('editDesc').value.trim();
+            const roleId = document.getElementById('editRole').value || null;
 
             try {
-                await fetch(API_BASE + '/store/' + itemId, {
+                await fetch(API_BASE + '/api/store/' + id, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, price, description, roleId })
+                    body: JSON.stringify({ name, price, description: desc, roleId })
                 });
                 hideModal();
                 fetchStoreItems();
-                showToast('Item updated!');
-            } catch (err) {
-                showToast('Failed to update!', 'error');
-            }
+                showToast('تم التعديل!');
+            } catch { showToast('فشل التعديل!', 'error'); }
         }
 
-        // Delete Item
-        async function deleteItem(itemId) {
-            if (!confirm('Are you sure you want to delete this item?')) return;
-
+        async function deleteItem(id) {
+            if (!confirm('متأكد بدك تحذف هاد المنتج؟')) return;
             try {
-                await fetch(API_BASE + '/store/' + itemId, { method: 'DELETE' });
+                await fetch(API_BASE + '/api/store/' + id, { method: 'DELETE' });
                 fetchStoreItems();
                 fetchConfig();
-                showToast('Item deleted!');
-            } catch (err) {
-                showToast('Failed to delete!', 'error');
-            }
+                showToast('تم الحذف!');
+            } catch { showToast('فشل الحذف!', 'error'); }
         }
 
-        // Admin Management
+        // Admins
         function updateMemberSelect() {
-            const select = document.getElementById('adminSelect');
-            select.innerHTML = '<option value="">-- Select Member --</option>';
+            const sel = document.getElementById('adminSelect');
+            sel.innerHTML = '<option value="">-- اختر عضو --</option>';
             members.forEach(m => {
                 const opt = document.createElement('option');
                 opt.value = m.id;
                 opt.textContent = m.displayName || m.username;
-                select.appendChild(opt);
+                sel.appendChild(opt);
             });
         }
 
         function updateAdminList() {
             const list = document.getElementById('adminList');
             list.innerHTML = '';
-
-            if (!config.admins || config.admins.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-muted);">No admins configured.</p>';
+            if (!config.serverAdmins || config.serverAdmins.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">ما في أدمنز.</p>';
                 return;
             }
-
-            config.admins.forEach(adminId => {
+            config.serverAdmins.forEach(id => {
                 const tag = document.createElement('div');
                 tag.className = 'admin-tag';
                 tag.innerHTML = `
                     <i class="fas fa-user-shield"></i>
-                    <span>${adminId}</span>
-                    <i class="fas fa-times remove-admin" onclick="removeAdmin('${adminId}')"></i>
+                    <span>${id}</span>
+                    <i class="fas fa-times remove-admin" onclick="removeAdmin('${id}')"></i>
                 `;
                 list.appendChild(tag);
             });
         }
 
         async function addAdmin() {
-            const userId = document.getElementById('adminSelect').value;
-            if (!userId) { showToast('Select a member first!', 'error'); return; }
+            const id = document.getElementById('adminSelect').value;
+            if (!id) { showToast('اختر عضو!', 'error'); return; }
+            if (!config.serverAdmins) config.serverAdmins = [];
+            if (config.serverAdmins.includes(id)) { showToast('هاد العضو أدمن بالفعل!', 'error'); return; }
 
-            if (!config.admins) config.admins = [];
-            if (config.admins.includes(userId)) {
-                showToast('Already an admin!', 'error');
-                return;
-            }
-
-            config.admins.push(userId);
-
+            config.serverAdmins.push(id);
             try {
-                await fetch(API_BASE + '/config', {
+                await fetch(API_BASE + '/api/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admins: config.admins })
+                    body: JSON.stringify({ serverAdmins: config.serverAdmins })
                 });
                 updateAdminList();
-                showToast('Admin added!');
-            } catch (err) {
-                showToast('Failed to add admin!', 'error');
-            }
+                showToast('تم إضافة الأدمن!');
+            } catch { showToast('فشل!', 'error'); }
         }
 
-        async function removeAdmin(userId) {
-            config.admins = config.admins.filter(id => id !== userId);
-
+        async function removeAdmin(id) {
+            config.serverAdmins = config.serverAdmins.filter(x => x !== id);
             try {
-                await fetch(API_BASE + '/config', {
+                await fetch(API_BASE + '/api/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admins: config.admins })
+                    body: JSON.stringify({ serverAdmins: config.serverAdmins })
                 });
                 updateAdminList();
-                showToast('Admin removed!');
-            } catch (err) {
-                showToast('Failed to remove!', 'error');
-            }
+                showToast('تم إزالة الأدمن!');
+            } catch { showToast('فشل!', 'error'); }
         }
 
-        // Users Table
+        // Users table
         function updateUsersTable(users) {
             const tbody = document.getElementById('usersTableBody');
             tbody.innerHTML = '';
-
-            users.forEach((user, index) => {
+            users.forEach((user, i) => {
                 const tr = document.createElement('tr');
-                const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                const rc = i < 3 ? `rank-${i + 1}` : '';
                 tr.innerHTML = `
-                    <td><span class="rank-badge ${rankClass}">${index + 1}</span></td>
-                    <td style="font-size: 12px; color: var(--text-muted);">${user.id}</td>
+                    <td><span class="rank-badge ${rc}">${i + 1}</span></td>
+                    <td style="font-size: 11px; color: var(--text-muted);">${user.id}</td>
                     <td>${user.username || user.id}</td>
                     <td><strong>${(user.points || 0).toLocaleString()}</strong></td>
                     <td>
                         <div style="display: flex; gap: 6px;">
-                            <button class="btn btn-success" style="padding: 6px 10px; font-size: 11px;" onclick="addPointsUser('${user.id}')">
-                                <i class="fas fa-plus"></i> Add
+                            <button class="btn btn-success" style="padding: 5px 8px; font-size: 10px;" onclick="addPointsUser('${user.id}')">
+                                <i class="fas fa-plus"></i> إضافة
                             </button>
-                            <button class="btn btn-danger" style="padding: 6px 10px; font-size: 11px;" onclick="removePointsUser('${user.id}')">
-                                <i class="fas fa-minus"></i> Remove
+                            <button class="btn btn-danger" style="padding: 5px 8px; font-size: 10px;" onclick="removePointsUser('${user.id}')">
+                                <i class="fas fa-minus"></i> سحب
                             </button>
                         </div>
                     </td>
@@ -1516,62 +1156,87 @@
             });
         }
 
-        function addPointsUser(userId) {
-            const amount = prompt('Enter amount to add:');
+        function addPointsUser(id) {
+            const amount = prompt('أدخل العدد:');
             if (!amount || isNaN(amount)) return;
-
-            fetch(API_BASE + '/addpoints', {
+            fetch(API_BASE + '/api/addpoints', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, amount: parseInt(amount) })
-            }).then(() => {
-                fetchUsers();
-                fetchConfig();
-                showToast('Points added!');
-            });
+                body: JSON.stringify({ userId: id, amount: parseInt(amount) })
+            }).then(() => { fetchUsers(); fetchConfig(); showToast('تم الإضافة!'); });
         }
 
-        function removePointsUser(userId) {
-            const amount = prompt('Enter amount to remove:');
+        function removePointsUser(id) {
+            const amount = prompt('أدخل العدد:');
             if (!amount || isNaN(amount)) return;
-
-            fetch(API_BASE + '/removepoints', {
+            fetch(API_BASE + '/api/removepoints', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, amount: parseInt(amount) })
-            }).then(() => {
-                fetchUsers();
-                fetchConfig();
-                showToast('Points removed!');
-            });
+                body: JSON.stringify({ userId: id, amount: parseInt(amount) })
+            }).then(() => { fetchUsers(); fetchConfig(); showToast('تم السحب!'); });
         }
 
         async function resetAllPoints() {
-            if (!confirm('Are you sure you want to reset ALL points? This cannot be undone!')) return;
-
+            if (!confirm('متأكد بدك تريست جميع النقاط؟ ما تقدر ترجع!')) return;
             try {
-                await fetch(API_BASE + '/reset', { method: 'POST' });
-                fetchUsers();
-                fetchConfig();
-                showToast('All points reset!');
-            } catch (err) {
-                showToast('Failed to reset!', 'error');
-            }
+                await fetch(API_BASE + '/api/reset', { method: 'POST' });
+                fetchUsers(); fetchConfig();
+                showToast('تم الريست!');
+            } catch { showToast('فشل!', 'error'); }
         }
 
-        // Initialize
+        // Logout
+        async function logout() {
+            await fetch(API_BASE + '/api/logout');
+            location.reload();
+        }
+
+        // Init
         async function init() {
-            await checkHealth();
+            const user = await fetchMe();
+            if (!user) {
+                document.getElementById('loginPage').classList.remove('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+
+            // Set user info
+            document.getElementById('userName').textContent = user.username;
+            const avatarUrl = user.avatar
+                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
+                : `https://cdn.discordapp.com/embed/avatars/0.png`;
+            document.getElementById('userAvatar').src = avatarUrl;
+
+            // Load data
             await fetchConfig();
+            isAdmin = config.isAdmin || false;
+
+            if (isAdmin) {
+                showAdminSections();
+                document.getElementById('adminBadge').classList.remove('hidden');
+                document.getElementById('adminStoreActions').classList.remove('hidden');
+            } else {
+                hideAdminSections();
+                document.getElementById('adminBadge').classList.add('hidden');
+                // Hide admin store actions
+                const storeActions = document.getElementById('adminStoreActions');
+                if (storeActions) storeActions.classList.add('hidden');
+            }
+
             await fetchChannels();
             await fetchRoles();
             await fetchMembers();
             await fetchStoreItems();
             await fetchUsers();
+
+            // Update server settings form
+            document.getElementById('serverPointsPerMsg').value = config.pointsPerMessage || 1;
         }
 
         init();
-        setInterval(checkHealth, 10000);
     </script>
 </body>
 </html>
