@@ -492,7 +492,7 @@ app.delete('/api/store/:id', requireAuth, async (req, res) => {
     res.json({ success: true });
 });
 
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return res.status(404).send('Not Found');
     const htmlContent = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
