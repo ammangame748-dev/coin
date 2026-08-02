@@ -1,19 +1,12 @@
 {
-  "name": "discord-points-bot",
-  "version": "1.0.0",
-  "description": "Discord Points Bot with Dashboard",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
-  },
-  "dependencies": {
-    "discord.js": "^14.14.1",
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "node-fetch": "^3.3.2"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  }
+    "name": "designak-website",
+    "version": "1.0.0",
+    "description": "Designak multi-tool website",
+    "main": "index.js",
+    "dependencies": {
+        "express": "^4.18.2"
+    },
+    "scripts": {
+        "start": "node index.js"
+    }
 }
