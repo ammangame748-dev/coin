@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, Partials } = require('discord.js');
 require('dotenv').config();
 const express = require('express');
@@ -15,7 +17,7 @@ function loadDB() {
         fs.writeFileSync(DB_PATH, JSON.stringify({
             guildId: null,
             defaultPointsName: 'COIN',
-            defaultPointsPerMessage: 1,
+            pointsPerMessage: 1,
             allowedChannels: [],
             logChannel: null,
             storeChannel: null,
@@ -75,6 +77,7 @@ if (DASHBOARD_URL.endsWith('/')) DASHBOARD_URL = DASHBOARD_URL.slice(0, -1);
 if (GUILD_ID && !db.guildId) {
     db.guildId = GUILD_ID;
     saveDB(db);
+    console.log(`Auto-detected Guild ID: ${db.guildId}`);
 }
 
 // ============================================================
@@ -116,8 +119,8 @@ client.on('messageCreate', async (message) => {
     const pointsName = user.pointsName || currentDb.defaultPointsName;
 
     // Give points per message
-    if (currentDb.defaultPointsPerMessage > 0) {
-        user.points = (user.points || 0) + currentDb.defaultPointsPerMessage;
+    if (currentDb.pointsPerMessage > 0) {
+        user.points = (user.points || 0) + currentDb.pointsPerMessage;
         saveDB(currentDb);
     }
 
@@ -372,17 +375,16 @@ const requireAuth = (req, res, next) => req.session.discordUser ? next() : res.s
 app.get('/api/me', (req, res) => res.json(req.session.discordUser ? { loggedIn: true, user: req.session.discordUser } : { loggedIn: false }));
 app.get('/api/logout', (req, res) => { req.session.destroy(); res.json({ success: true }); });
 
-app.get('/api/config', requireAuth, async (req, res) => {
+app.post('/api/config/personal', requireAuth, async (req, res) => {
     const currentDb = loadDB();
-    const isAdmin = await checkIfAdmin(req.session.discordUser, currentDb);
-    const user = currentDb.users[req.session.discordUser.id] || { points: 0 };
-    res.json({
-        ...currentDb,
-        isAdmin,
-        myPoints: user.points || 0,
-        totalUsers: Object.keys(currentDb.users).length,
-        totalPoints: Object.values(currentDb.users).reduce((s, u) => s + (u.points || 0), 0)
-    });
+    const { pointsName } = req.body;
+    if (req.session.discordUser && currentDb.users[req.session.discordUser.id]) {
+        currentDb.users[req.session.discordUser.id].pointsName = pointsName;
+        saveDB(currentDb);
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ error: 'User not found or not logged in' });
+    }
 });
 
 app.post('/api/config', requireAuth, async (req, res) => {
@@ -419,25 +421,41 @@ app.post('/api/removepoints', requireAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+app.post('/api/reset', requireAuth, async (req, res) => {
+    const currentDb = loadDB();
+    if (!await checkIfAdmin(req.session.discordUser, currentDb)) return res.status(403).json({ error: 'Forbidden' });
+    Object.keys(currentDb.users).forEach(userId => {
+        currentDb.users[userId].points = 0;
+    });
+    saveDB(currentDb);
+    res.json({ success: true });
+});
+
 app.get('/api/channels', requireAuth, async (req, res) => {
-    const guild = client.guilds.cache.get(db.guildId);
+    const currentDb = loadDB();
+    if (!currentDb.guildId) return res.json([]);
+    const guild = client.guilds.cache.get(currentDb.guildId);
     if (!guild) return res.json([]);
-    const channels = (await guild.channels.fetch()).filter(c => c.type === 0).map(c => ({ id: c.id, name: c.name }));
-    res.json(Array.from(channels.values()));
+    const channels = await guild.channels.fetch();
+    res.json(channels.filter(c => c.type === 0).map(c => ({ id: c.id, name: c.name })));
 });
 
 app.get('/api/roles', requireAuth, async (req, res) => {
-    const guild = client.guilds.cache.get(db.guildId);
+    const currentDb = loadDB();
+    if (!currentDb.guildId) return res.json([]);
+    const guild = client.guilds.cache.get(currentDb.guildId);
     if (!guild) return res.json([]);
-    const roles = (await guild.roles.fetch()).filter(r => r.id !== guild.id).map(r => ({ id: r.id, name: r.name }));
-    res.json(Array.from(roles.values()));
+    const roles = await guild.roles.fetch();
+    res.json(roles.map(r => ({ id: r.id, name: r.name })));
 });
 
 app.get('/api/members', requireAuth, async (req, res) => {
-    const guild = client.guilds.cache.get(db.guildId);
+    const currentDb = loadDB();
+    if (!currentDb.guildId) return res.json([]);
+    const guild = client.guilds.cache.get(currentDb.guildId);
     if (!guild) return res.json([]);
-    const members = (await guild.members.fetch()).filter(m => !m.user.bot).map(m => ({ id: m.id, username: m.user.username, displayName: m.displayName }));
-    res.json(Array.from(members.values()));
+    const members = await guild.members.fetch();
+    res.json(members.map(m => ({ id: m.id, username: m.user.username, displayName: m.displayName })));
 });
 
 app.get('/api/store', requireAuth, (req, res) => res.json(loadDB().storeItems || []));
@@ -451,6 +469,21 @@ app.post('/api/store', requireAuth, async (req, res) => {
     res.json(newItem);
 });
 
+app.put('/api/store/:id', requireAuth, async (req, res) => {
+    const currentDb = loadDB();
+    if (!await checkIfAdmin(req.session.discordUser, currentDb)) return res.status(403).json({ error: 'Forbidden' });
+    const itemId = parseInt(req.params.id);
+    const { name, price, description, roleId } = req.body;
+    const itemIndex = currentDb.storeItems.findIndex(i => i.id === itemId);
+    if (itemIndex > -1) {
+        currentDb.storeItems[itemIndex] = { ...currentDb.storeItems[itemIndex], name, price, description, roleId };
+        saveDB(currentDb);
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ error: 'Item not found' });
+    }
+});
+
 app.delete('/api/store/:id', requireAuth, async (req, res) => {
     const currentDb = loadDB();
     if (!await checkIfAdmin(req.session.discordUser, currentDb)) return res.status(403).json({ error: 'Forbidden' });
@@ -459,46 +492,45 @@ app.delete('/api/store/:id', requireAuth, async (req, res) => {
     res.json({ success: true });
 });
 
-// ============================================================
-// SERVE DASHBOARD (Embedded HTML)
-// ============================================================
-const htmlContent = `<!DOCTYPE html>
+app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return res.status(404).send('Not Found');
+    const htmlContent = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام النقاط - لوحة التحكم</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap"
-        rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>نظام النقاط</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
             --primary: #7c3aed;
             --primary-light: #a78bfa;
-            --primary-dark: #5b21b6;
+            --primary-dark: #6d28d9;
             --secondary: #06b6d4;
             --accent: #f59e0b;
-            --danger: #ef4444;
             --success: #10b981;
+            --danger: #ef4444;
             --bg-dark: #0a0a1a;
-            --bg-card: rgba(15, 15, 35, 0.85);
-            --bg-glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
+            --bg-card: #1a1a2e;
+            --bg-glass: rgba(26, 26, 46, 0.6);
+            --text: #e0e7ff;
+            --text-muted: #a7b4cd;
+            --border: rgba(124, 58, 237, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: 'Tajawal', sans-serif;
-            background: var(--bg-dark);
+            background-color: var(--bg-dark);
             color: var(--text);
+            line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -984,7 +1016,7 @@ const htmlContent = `<!DOCTYPE html>
         .form-select {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' fill=\'%2394a3b8\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M8 11L3 6h10l-5 5z\'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: left 14px center;
         }
@@ -1461,7 +1493,7 @@ const htmlContent = `<!DOCTYPE html>
                             <div class="stat-label">إجمالي المستخدمين</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon amber"><i class="fas fa-gem"></i></div>
+                            <div class="stat-icon amber"><i class="fas fa-chart-line"></i></div>
                             <div class="stat-value" id="statTotalPoints">0</div>
                             <div class="stat-label">إجمالي النقاط</div>
                         </div>
@@ -1472,30 +1504,26 @@ const htmlContent = `<!DOCTYPE html>
                         </div>
                     </div>
 
+                    <div class="section-title"><i class="fas fa-info-circle"></i> معلومات عامة</div>
+
                     <div class="card">
-                        <div class="card-title"><i class="fas fa-info-circle"></i> معلومات سريعة</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
-                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">اسم نقاطك
-                                </div>
-                                <div style="font-size: 18px; font-weight: 700;" id="infoMyPointsName">COIN</div>
-                            </div>
-                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
-                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">نقاط لكل
-                                    رسالة</div>
-                                <div style="font-size: 18px; font-weight: 700;" id="infoPointsPerMsg">1</div>
-                            </div>
-                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
-                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">القنوات
-                                    المسموحة</div>
-                                <div style="font-size: 18px; font-weight: 700;" id="infoChannels">0</div>
-                            </div>
-                            <div style="padding: 14px; background: var(--bg-glass); border-radius: 10px;">
-                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">قناة اللوغ
-                                </div>
-                                <div style="font-size: 18px; font-weight: 700;" id="infoLog">لم يتم تحديدها</div>
-                            </div>
-                        </div>
+                        <div class="card-title"><i class="fas fa-coins"></i> اسم النقاط</div>
+                        <p id="infoMyPointsName" style="font-size: 14px;">COIN</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-comment-dots"></i> نقاط لكل رسالة</div>
+                        <p id="infoPointsPerMsg" style="font-size: 14px;">1</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-hashtag"></i> القنوات المسموحة</div>
+                        <p id="infoChannels" style="font-size: 14px;">0</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-file-alt"></i> قناة اللوغ</div>
+                        <p id="infoLog" style="font-size: 14px;">لم يتم تحديدها</p>
                     </div>
                 </div>
 
@@ -1685,7 +1713,7 @@ const htmlContent = `<!DOCTYPE html>
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('section-' + name).classList.add('active');
-            document.querySelector(\`.nav-item[data-section="\${name}"]\`).classList.add('active');
+            document.querySelector(`.nav-item[data-section="${name}"]`).classList.add('active');
         }
 
         // Modal
@@ -1803,15 +1831,16 @@ const htmlContent = `<!DOCTYPE html>
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pointsName: name })
                 });
-                config.pointsName = name;
-                updateOverview();
-                showToast('تم حفظ اسم النقاط!');
-            } catch { showToast('فشل الحفظ!', 'error'); }
+                fetchConfig();
+                showToast('تم حفظ الإعدادات الشخصية!');
+            } catch { showToast('فشل حفظ الإعدادات الشخصية!', 'error'); }
         }
 
-        // Save server settings (admin)
+        // Save server settings
         async function saveServerSettings() {
-            const ppm = parseInt(document.getElementById('serverPointsPerMsg').value) || 0;
+            const ppm = parseInt(document.getElementById('serverPointsPerMsg').value);
+            if (isNaN(ppm) || ppm < 0) { showToast('النقاط لكل رسالة يجب أن تكون رقماً موجباً!', 'error'); return; }
+
             try {
                 await fetch(API_BASE + '/api/config', {
                     method: 'POST',
@@ -1820,38 +1849,41 @@ const htmlContent = `<!DOCTYPE html>
                 });
                 config.pointsPerMessage = ppm;
                 updateOverview();
-                showToast('تم حفظ الإعدادات!');
-            } catch { showToast('فشل الحفظ!', 'error'); }
+                showToast('تم حفظ إعدادات السيرفر!');
+            } catch { showToast('فشل حفظ إعدادات السيرفر!', 'error'); }
         }
 
         // Channels
         function updateChannelSelects() {
-            const sel = document.getElementById('allowedChannelsSelect');
-            const logSel = document.getElementById('logChannelSelect');
-            sel.innerHTML = '';
-            logSel.innerHTML = '<option value="">-- اختر قناة اللوغ --</option>';
+            const allowedChannelsSelect = document.getElementById('allowedChannelsSelect');
+            allowedChannelsSelect.innerHTML = '';
+            selectedChannels = config.allowedChannels || [];
 
-            channels.forEach(ch => {
+            channels.forEach(c => {
                 const item = document.createElement('div');
-                item.className = 'multi-select-item' + ((config.allowedChannels || []).includes(ch.id) ? ' selected' : '');
-                item.textContent = '#' + ch.name;
+                item.className = `multi-select-item ${selectedChannels.includes(c.id) ? 'selected' : ''}`;
+                item.textContent = `#${c.name}`;
+                item.dataset.id = c.id;
                 item.onclick = () => {
-                    item.classList.toggle('selected');
-                    if (item.classList.contains('selected')) {
-                        selectedChannels.push(ch.id);
+                    if (selectedChannels.includes(c.id)) {
+                        selectedChannels = selectedChannels.filter(id => id !== c.id);
                     } else {
-                        selectedChannels = selectedChannels.filter(id => id !== ch.id);
+                        selectedChannels.push(c.id);
                     }
+                    item.classList.toggle('selected');
                 };
-                sel.appendChild(item);
-
-                const opt = document.createElement('option');
-                opt.value = ch.id; opt.textContent = ch.name;
-                logSel.appendChild(opt);
+                allowedChannelsSelect.appendChild(item);
             });
 
-            selectedChannels = [...(config.allowedChannels || [])];
-            if (config.logChannel) logSel.value = config.logChannel;
+            const logChannelSelect = document.getElementById('logChannelSelect');
+            logChannelSelect.innerHTML = '<option value="">-- اختر قناة اللوغ --</option>';
+            channels.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = `#${c.name}`;
+                if (config.logChannel === c.id) opt.selected = true;
+                logChannelSelect.appendChild(opt);
+            });
         }
 
         async function saveChannels() {
@@ -1864,145 +1896,138 @@ const htmlContent = `<!DOCTYPE html>
                 config.allowedChannels = selectedChannels;
                 updateOverview();
                 showToast('تم حفظ القنوات!');
-            } catch { showToast('فشل الحفظ!', 'error'); }
+            } catch { showToast('فشل حفظ القنوات!', 'error'); }
         }
 
         async function saveLogChannel() {
-            const lc = document.getElementById('logChannelSelect').value;
+            const channelId = document.getElementById('logChannelSelect').value;
             try {
                 await fetch(API_BASE + '/api/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ logChannel: lc })
+                    body: JSON.stringify({ logChannel: channelId || null })
                 });
-                config.logChannel = lc;
+                config.logChannel = channelId || null;
                 updateOverview();
                 showToast('تم حفظ قناة اللوغ!');
-            } catch { showToast('فشل الحفظ!', 'error'); }
+            } catch { showToast('فشل حفظ قناة اللوغ!', 'error'); }
         }
 
         // Store
         function updateStoreItems(items) {
             const container = document.getElementById('storeItemsContainer');
             container.innerHTML = '';
-
             if (items.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">لا توجد منتجات بالمتجر.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">المتجر فارغ حالياً.</p>';
                 return;
             }
-
-            items.forEach((item, i) => {
+            items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'store-item-card';
-                card.style.animationDelay = (i * 0.1) + 's';
-                card.innerHTML = \`
+                card.innerHTML = `
                     <div class="store-item-header">
-                        <div class="store-item-name">\${item.name}</div>
-                        <div class="store-item-price">\${item.price.toLocaleString()} نقطة</div>
+                        <div class="store-item-name">${item.name}</div>
+                        <div class="store-item-price">${item.price.toLocaleString()}</div>
                     </div>
-                    <div class="store-item-desc">\${item.description || 'لا يوجد وصف'}</div>
-                    \${item.roleId ? \`<div class="store-item-role"><i class="fas fa-crown"></i> رتبة: \${item.roleId}</div>\` : ''}
+                    <div class="store-item-desc">${item.description || 'لا يوجد وصف.'}</div>
+                    ${item.roleId ? `<div class="store-item-role">دور: <@&${item.roleId}></div>` : ''}
                     <div class="store-item-actions">
-                        <button class="btn btn-secondary" onclick="showEditItemModal(\${item.id})">
+                        <button class="btn btn-primary" onclick="showEditItemModal(${item.id})">
                             <i class="fas fa-edit"></i> تعديل
                         </button>
-                        <button class="btn btn-danger" onclick="deleteItem(\${item.id})">
+                        <button class="btn btn-danger" onclick="deleteItem(${item.id})">
                             <i class="fas fa-trash"></i> حذف
                         </button>
                     </div>
-                \`;
+                `;
                 container.appendChild(card);
             });
         }
 
         function showAddItemModal() {
-            const roleOpts = roles.map(r => \`<option value="\${r.id}">\${r.name}</option>\`).join('');
-            showModal(\`
-                <div class="modal-title">إضافة منتج للمتجر</div>
+            showModal(`
+                <div class="modal-title">إضافة منتج جديد</div>
                 <div class="form-group">
                     <label class="form-label">اسم المنتج</label>
-                    <input type="text" class="form-input" id="modalItemName" placeholder="مثال: VIP">
+                    <input type="text" class="form-input" id="itemName" placeholder="مثال: رتبة VIP">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">السعر (بالنقاط)</label>
-                    <input type="number" class="form-input" id="modalItemPrice" placeholder="مثال: 5000">
+                    <label class="form-label">السعر</label>
+                    <input type="number" class="form-input" id="itemPrice" placeholder="100" min="0">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">التفاصيل / الوصف</label>
-                    <input type="text" class="form-input" id="modalItemDesc" placeholder="اكتب تفاصيل المنتج...">
+                    <label class="form-label">الوصف (اختياري)</label>
+                    <textarea class="form-input" id="itemDesc" rows="3" placeholder="وصف المنتج..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">رتبة ديسكورد (اختياري)</label>
-                    <select class="form-select" id="modalItemRole">
-                        <option value="">-- بدون رتبة --</option>
-                        \${roleOpts}
+                    <label class="form-label">الدور (اختياري)</label>
+                    <select class="form-select" id="itemRole">
+                        <option value="">-- اختر دور --</option>
+                        ${roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
                     </select>
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="hideModal()">إلغاء</button>
-                    <button class="btn btn-success" onclick="addItem()">
+                    <button class="btn btn-primary" onclick="addItem()">
                         <i class="fas fa-plus"></i> إضافة
                     </button>
                 </div>
-            \`);
+            `);
         }
 
         async function addItem() {
-            const name = document.getElementById('modalItemName').value.trim();
-            const price = parseInt(document.getElementById('modalItemPrice').value) || 0;
-            const desc = document.getElementById('modalItemDesc').value.trim();
-            const roleId = document.getElementById('modalItemRole').value || null;
+            const name = document.getElementById('itemName').value.trim();
+            const price = parseInt(document.getElementById('itemPrice').value) || 0;
+            const description = document.getElementById('itemDesc').value.trim();
+            const roleId = document.getElementById('itemRole').value || null;
 
-            if (!name) { showToast('اسم المنتج مطلوب!', 'error'); return; }
-            if (price <= 0) { showToast('السعر لازم يكون أكبر من 0!', 'error'); return; }
+            if (!name || price <= 0) { showToast('الاسم والسعر مطلوبان!', 'error'); return; }
 
             try {
                 await fetch(API_BASE + '/api/store', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, price, description: desc, roleId })
+                    body: JSON.stringify({ name, price, description, roleId })
                 });
                 hideModal();
                 fetchStoreItems();
                 fetchConfig();
                 showToast('تم إضافة المنتج!');
-            } catch { showToast('فشل الإضافة!', 'error'); }
+            } catch { showToast('فشل إضافة المنتج!', 'error'); }
         }
 
-        function showEditItemModal(itemId) {
-            const item = config.storeItems.find(i => i.id === itemId);
-            if (!item) return;
-            const roleOpts = roles.map(r =>
-                \`<option value="\${r.id}" \${r.id === item.roleId ? 'selected' : ''}>\${r.name}</option>\`
-            ).join('');
-            showModal(\`
-                <div class="modal-title">تعديل المنتج</div>
+        function showEditItemModal(id) {
+            const item = config.storeItems.find(i => i.id === id);
+            if (!item) { showToast('المنتج غير موجود!', 'error'); return; }
+
+            showModal(`
+                <div class="modal-title">تعديل منتج</div>
                 <div class="form-group">
                     <label class="form-label">اسم المنتج</label>
-                    <input type="text" class="form-input" id="editName" value="\${item.name}">
+                    <input type="text" class="form-input" id="editName" value="${item.name}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">السعر</label>
-                    <input type="number" class="form-input" id="editPrice" value="\${item.price}">
+                    <input type="number" class="form-input" id="editPrice" value="${item.price}" min="0">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">التفاصيل</label>
-                    <input type="text" class="form-input" id="editDesc" value="\${item.description || ''}">
+                    <label class="form-label">الوصف (اختياري)</label>
+                    <textarea class="form-input" id="editDesc" rows="3">${item.description || ''}</textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">رتبة ديسكورد</label>
+                    <label class="form-label">الدور (اختياري)</label>
                     <select class="form-select" id="editRole">
-                        <option value="">-- بدون رتبة --</option>
-                        \${roleOpts}
+                        <option value="">-- اختر دور --</option>
+                        ${roles.map(r => `<option value="${r.id}" ${item.roleId === r.id ? 'selected' : ''}>${r.name}</option>`).join('')}
                     </select>
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="hideModal()">إلغاء</button>
-                    <button class="btn btn-primary" onclick="updateItem(\${item.id})">
+                    <button class="btn btn-primary" onclick="updateItem(${item.id})">
                         <i class="fas fa-save"></i> حفظ
                     </button>
                 </div>
-            \`);
+            `);
         }
 
         async function updateItem(id) {
@@ -2055,11 +2080,11 @@ const htmlContent = `<!DOCTYPE html>
             config.serverAdmins.forEach(id => {
                 const tag = document.createElement('div');
                 tag.className = 'admin-tag';
-                tag.innerHTML = \`
+                tag.innerHTML = `
                     <i class="fas fa-user-shield"></i>
-                    <span>\${id}</span>
-                    <i class="fas fa-times remove-admin" onclick="removeAdmin('\${id}')"></i>
-                \`;
+                    <span>${id}</span>
+                    <i class="fas fa-times remove-admin" onclick="removeAdmin('${id}')"></i>
+                `;
                 list.appendChild(tag);
             });
         }
@@ -2101,23 +2126,23 @@ const htmlContent = `<!DOCTYPE html>
             tbody.innerHTML = '';
             users.forEach((user, i) => {
                 const tr = document.createElement('tr');
-                const rc = i < 3 ? \`rank-\${i + 1}\` : '';
-                tr.innerHTML = \`
-                    <td><span class="rank-badge \${rc}">\${i + 1}</span></td>
-                    <td style="font-size: 11px; color: var(--text-muted);">\${user.id}</td>
-                    <td>\${user.username || user.id}</td>
-                    <td><strong>\${(user.points || 0).toLocaleString()}</strong></td>
+                const rc = i < 3 ? `rank-${i + 1}` : '';
+                tr.innerHTML = `
+                    <td><span class="rank-badge ${rc}">${i + 1}</span></td>
+                    <td style="font-size: 11px; color: var(--text-muted);">${user.id}</td>
+                    <td>${user.username || user.id}</td>
+                    <td><strong>${(user.points || 0).toLocaleString()}</strong></td>
                     <td>
                         <div style="display: flex; gap: 6px;">
-                            <button class="btn btn-success" style="padding: 5px 8px; font-size: 10px;" onclick="addPointsUser('\${user.id}')">
+                            <button class="btn btn-success" style="padding: 5px 8px; font-size: 10px;" onclick="addPointsUser('${user.id}')">
                                 <i class="fas fa-plus"></i> إضافة
                             </button>
-                            <button class="btn btn-danger" style="padding: 5px 8px; font-size: 10px;" onclick="removePointsUser('\${user.id}')">
+                            <button class="btn btn-danger" style="padding: 5px 8px; font-size: 10px;" onclick="removePointsUser('${user.id}')">
                                 <i class="fas fa-minus"></i> سحب
                             </button>
                         </div>
                     </td>
-                \`;
+                `;
                 tbody.appendChild(tr);
             });
         }
@@ -2172,8 +2197,8 @@ const htmlContent = `<!DOCTYPE html>
             // Set user info
             document.getElementById('userName').textContent = user.username;
             const avatarUrl = user.avatar
-                ? \`https://cdn.discordapp.com/avatars/\${user.id}/\${user.avatar}.png?size=64\`
-                : \`https://cdn.discordapp.com/embed/avatars/0.png\`;
+                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
+                : `https://cdn.discordapp.com/embed/avatars/0.png`;
             document.getElementById('userAvatar').src = avatarUrl;
 
             // Load data
@@ -2207,9 +2232,6 @@ const htmlContent = `<!DOCTYPE html>
 </body>
 
 </html>`;
-
-app.get('/:path*', (req, res) => {
-    if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return res.status(404).send('Not Found');
     res.send(htmlContent);
 });
 
