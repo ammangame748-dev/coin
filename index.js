@@ -386,7 +386,26 @@ app.post('/api/config/personal', requireAuth, async (req, res) => {
         res.status(400).json({ error: 'User not found or not logged in' });
     }
 });
+app.get('/api/config', requireAuth, async (req, res) => {
+    const currentDb = loadDB();
 
+    const me = currentDb.users[req.session.discordUser.id] || {
+        points: 0,
+        pointsName: currentDb.defaultPointsName
+    };
+
+    res.json({
+        pointsName: me.pointsName || currentDb.defaultPointsName,
+        myPoints: me.points || 0,
+        totalUsers: Object.keys(currentDb.users).length,
+        totalPoints: Object.values(currentDb.users).reduce((a, b) => a + (b.points || 0), 0),
+        pointsPerMessage: currentDb.pointsPerMessage,
+        allowedChannels: currentDb.allowedChannels,
+        logChannel: currentDb.logChannel,
+        storeItems: currentDb.storeItems,
+        serverAdmins: currentDb.serverAdmins
+    });
+});
 app.post('/api/config', requireAuth, async (req, res) => {
     const currentDb = loadDB();
     if (!await checkIfAdmin(req.session.discordUser, currentDb)) return res.status(403).json({ error: 'Forbidden' });
@@ -492,7 +511,7 @@ app.delete('/api/store/:id', requireAuth, async (req, res) => {
     res.json({ success: true });
 });
 
-app.get('/*', (req, res) => {
+app.use((req, res) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) return res.status(404).send('Not Found');
     const htmlContent = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
