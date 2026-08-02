@@ -1,121 +1,1577 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Designak | منصة الأدوات الذكية</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <title>Points System Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #a78bfa;
+            --primary-dark: #5b21b6;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bg-dark: #0a0a1a;
+            --bg-card: rgba(15, 15, 35, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+
+        /* Particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 26, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo i {
+            font-size: 28px;
+            color: var(--primary);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .header-logo h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: blink 1.5s infinite;
+        }
+
+        .status-dot.online {
+            background: var(--success);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            padding: 30px 20px;
+            border-left: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            background: rgba(10, 10, 26, 0.6);
+            animation: slideRight 0.5s ease 0.2s both;
+        }
+
+        @keyframes slideRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .nav-item:hover {
+            background: var(--bg-glass);
+            color: var(--text);
+            transform: translateX(-5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.1));
+            color: var(--primary-light);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .stat-card {
+            padding: 24px;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(124, 58, 237, 0.3);
+            box-shadow: 0 10px 40px rgba(124, 58, 237, 0.1);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            font-size: 18px;
+        }
+
+        .stat-icon.purple { background: rgba(124, 58, 237, 0.2); color: var(--primary-light); }
+        .stat-icon.cyan { background: rgba(6, 182, 212, 0.2); color: var(--secondary); }
+        .stat-icon.amber { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
+        .stat-icon.green { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-light);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            color: var(--text);
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 14px center;
+        }
+
+        .form-select option {
+            background: #1a1a2e;
+            color: var(--text);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Channel/Role Selection */
+        .multi-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            min-height: 60px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .multi-select-item {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .multi-select-item:hover {
+            background: rgba(124, 58, 237, 0.3);
+        }
+
+        .multi-select-item.selected {
+            background: var(--primary);
+            border-color: var(--primary-light);
+        }
+
+        /* Store Items */
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .store-item-card {
+            padding: 24px;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.4s ease both;
+        }
+
+        .store-item-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        .store-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .store-item-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .store-item-price {
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .store-item-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .store-item-role {
+            font-size: 12px;
+            color: var(--secondary);
+            margin-bottom: 14px;
+            padding: 6px 10px;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .store-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Users Table */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .users-table th, .users-table td {
+            padding: 14px 18px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .users-table th {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .users-table td {
+            font-size: 14px;
+        }
+
+        .users-table tr:hover {
+            background: var(--bg-glass);
+        }
+
+        .rank-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
+        .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #000; }
+        .rank-3 { background: linear-gradient(135deg, #b45309, #92400e); color: #fff; }
+
+        /* Admin List */
+        .admin-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .admin-tag {
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-tag .remove-admin {
+            cursor: pointer;
+            color: var(--danger);
+            transition: transform 0.2s;
+        }
+
+        .admin-tag .remove-admin:hover {
+            transform: scale(1.2);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            padding: 16px 28px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: transform 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+
+        /* Card container */
+        .card {
+            padding: 28px;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-light);
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .content {
+                padding: 20px;
+            }
+            .header {
+                padding: 15px 20px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, 0.3);
+            border-radius: 3px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* Points animation */
+        .points-value {
+            display: inline-block;
+            animation: countUp 0.5s ease;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-
 <body>
+    <div class="bg-animation"></div>
 
-    <!-- Background Animation -->
-    <div class="bg-glow"></div>
+    <!-- Particles -->
+    <div id="particles"></div>
 
-    <!-- Navigation -->
-    <nav>
-        <div class="container">
-            <div class="logo" id="main-logo">
-                <span>D</span>esignak
-            </div>
-            <ul class="nav-links">
-                <li><a href="#home"><i class="fas fa-home"></i> الرئيسية</a></li>
-                <li><a href="#tools"><i class="fas fa-tools"></i> الأدوات</a></li>
-                <li><a href="#about"><i class="fas fa-info-circle"></i> شرح الموقع</a></li>
-            </ul>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logo">
+            <i class="fas fa-coins"></i>
+            <h1>Points System Dashboard</h1>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header id="home">
-        <div class="container hero-content">
-            <h1 class="animate-text">مرحباً بك في <span class="highlight">Designak</span></h1>
-            <p>المنصة المتكاملة لتحويل الفيديو إلى نصوص، التعرف على الموسيقى، وتصميم الصور باحترافية.</p>
-            <div class="hero-buttons">
-                <a href="#tools" class="btn btn-primary">ابدأ الآن <i class="fas fa-rocket"></i></a>
-                <a href="#about" class="btn btn-secondary">كيف يعمل؟ <i class="fas fa-question"></i></a>
-            </div>
+        <div class="header-status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Connecting...</span>
         </div>
     </header>
 
-    <!-- Tools Section -->
-    <section id="tools">
-        <div class="container">
-            <h2 class="section-title">أدواتنا الذكية</h2>
-            <div class="tools-grid">
-
-                <!-- Tool 1: Video Transcription -->
-                <div class="tool-card" id="tool-transcription">
-                    <div class="tool-icon"><i class="fas fa-closed-captioning"></i></div>
-                    <h3>محول الفيديو لنصوص</h3>
-                    <p>ارفع الفيديو واحصل على النص المكتوب فوراً بالعربية أو الإنجليزية.</p>
-                    <button class="btn-tool" onclick="openTool('transcription' )">استخدم الأداة</button>
-                </div>
-
-                <!-- Tool 2: Music ID -->
-                <div class="tool-card" id="tool-music">
-                    <div class="tool-icon"><i class="fas fa-music"></i></div>
-                    <h3>كاشف الموسيقى</h3>
-                    <p>تعرف على اسم أي أغنية أو موسيقى داخل مقاطع الفيديو الخاصة بك.</p>
-                    <button class="btn-tool" onclick="openTool('music')">استخدم الأداة</button>
-                </div>
-
-                <!-- Tool 3: Image Editor -->
-                <div class="tool-card" id="tool-image">
-                    <div class="tool-icon"><i class="fas fa-magic"></i></div>
-                    <h3>محرر الصور السريع</h3>
-                    <p>إزالة الخلفيات، إضافة نصوص متحركة، وتحويل الصيغ بضغطة زر.</p>
-                    <button class="btn-tool" onclick="openTool('image')">استخدم الأداة</button>
-                </div>
-
+    <!-- Main -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="nav-item active" data-section="overview" onclick="showSection('overview')">
+                <i class="fas fa-chart-pie"></i>
+                <span>Overview</span>
             </div>
-        </div>
-    </section>
+            <div class="nav-item" data-section="settings" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+            <div class="nav-item" data-section="channels" onclick="showSection('channels')">
+                <i class="fas fa-hashtag"></i>
+                <span>Channels</span>
+            </div>
+            <div class="nav-item" data-section="store" onclick="showSection('store')">
+                <i class="fas fa-store"></i>
+                <span>Store</span>
+            </div>
+            <div class="nav-item" data-section="admins" onclick="showSection('admins')">
+                <i class="fas fa-user-shield"></i>
+                <span>Admins</span>
+            </div>
+            <div class="nav-item" data-section="users" onclick="showSection('users')">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </div>
+        </nav>
 
-    <!-- About Section -->
-    <section id="about">
-        <div class="container">
-            <h2 class="section-title">شرح الموقع</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p><strong>Designak</strong> هو مشروع صُمم ليكون المساعد الأول لصناع المحتوى والمصممين. يوفر أدوات
-                        تعتمد على الذكاء الاصطناعي لتوفير الوقت والجهد.</p>
-                    <ul class="features-list">
-                        <li><i class="fas fa-check-circle"></i> <strong>تحويل الفيديو:</strong> يدعم اللغات العربية
-                            والإنجليزية بدقة عالية.</li>
-                        <li><i class="fas fa-check-circle"></i> <strong>كشف الموسيقى:</strong> قاعدة بيانات ضخمة للتعرف
-                            على الألحان.</li>
-                        <li><i class="fas fa-check-circle"></i> <strong>تعديل الصور:</strong> أدوات مجانية بالكامل بدون
-                            الحاجة لبرامج معقدة.</li>
-                    </ul>
+        <!-- Content -->
+        <main class="content">
+            <!-- Overview Section -->
+            <div class="section active" id="section-overview">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+                        <div class="stat-value" id="statUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon cyan"><i class="fas fa-coins"></i></div>
+                        <div class="stat-value" id="statPoints">0</div>
+                        <div class="stat-label">Total Points</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon amber"><i class="fas fa-store"></i></div>
+                        <div class="stat-value" id="statStore">0</div>
+                        <div class="stat-label">Store Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-server"></i></div>
+                        <div class="stat-value" id="statGuild">N/A</div>
+                        <div class="stat-label">Connected Server</div>
+                    </div>
                 </div>
-                <div class="about-icon">
-                    <i class="fas fa-lightbulb pulse"></i>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-info-circle"></i> Quick Info</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Points Name</div>
+                            <div style="font-size: 20px; font-weight: 700;" id="infoPointsName">FBI</div>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Points Per Message</div>
+                            <div style="font-size: 20px; font-weight: 700;" id="infoPointsPerMsg">1</div>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Allowed Channels</div>
+                            <div style="font-size: 20px; font-weight: 700;" id="infoChannels">0</div>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-glass); border-radius: 12px;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Log Channel</div>
+                            <div style="font-size: 20px; font-weight: 700;" id="infoLogChannel">Not Set</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Modals for Tools -->
-    <div id="modal-container" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div id="modal-body">
-                <!-- Content injected via JS -->
+            <!-- Settings Section -->
+            <div class="section" id="section-settings">
+                <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-pen"></i> Points Configuration</div>
+
+                    <div class="form-group">
+                        <label class="form-label">Points Name</label>
+                        <input type="text" class="form-input" id="settingsPointsName" placeholder="e.g., FBI, RZ, Coins...">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Points Per Message</label>
+                        <input type="number" class="form-input" id="settingsPointsPerMsg" placeholder="e.g., 1" min="0">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
             </div>
-        </div>
+
+            <!-- Channels Section -->
+            <div class="section" id="section-channels">
+                <div class="section-title"><i class="fas fa-hashtag"></i> Channels</div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-comment-dots"></i> Allowed Channels</div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+                        Select the channels where the bot will respond to commands. Leave empty for all channels.
+                    </p>
+                    <div class="multi-select" id="allowedChannelsSelect"></div>
+
+                    <button class="btn btn-primary" style="margin-top: 14px;" onclick="saveChannels()">
+                        <i class="fas fa-save"></i> Save Channels
+                    </button>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-title"><i class="fas fa-file-alt"></i> Log Channel</div>
+                    <div class="form-group">
+                        <select class="form-select" id="logChannelSelect">
+                            <option value="">-- Select Log Channel --</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveLogChannel()">
+                        <i class="fas fa-save"></i> Save Log Channel
+                    </button>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-title"><i class="fas fa-shopping-cart"></i> Store Channel</div>
+                    <div class="form-group">
+                        <select class="form-select" id="storeChannelSelect">
+                            <option value="">-- Select Store Channel --</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveStoreChannel()">
+                        <i class="fas fa-save"></i> Save Store Channel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Store Section -->
+            <div class="section" id="section-store">
+                <div class="section-title"><i class="fas fa-store"></i> Store Management</div>
+
+                <button class="btn btn-success" onclick="showAddItemModal()">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+
+                <div class="store-grid" id="storeItemsContainer"></div>
+            </div>
+
+            <!-- Admins Section -->
+            <div class="section" id="section-admins">
+                <div class="section-title"><i class="fas fa-user-shield"></i> Admin Management</div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-user-plus"></i> Add Admin</div>
+                    <div class="form-group">
+                        <select class="form-select" id="adminSelect">
+                            <option value="">-- Select Member --</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="addAdmin()">
+                        <i class="fas fa-plus"></i> Add as Admin
+                    </button>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-title"><i class="fas fa-list"></i> Current Admins</div>
+                    <div class="admin-list" id="adminList"></div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div class="section" id="section-users">
+                <div class="section-title"><i class="fas fa-users"></i> Users Leaderboard</div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-danger" onclick="resetAllPoints()">
+                        <i class="fas fa-trash"></i> Reset All Points
+                    </button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User ID</th>
+                                <th>Username</th>
+                                <th>Points</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <footer>
-        <p>جميع الحقوق محفوظة لـ &copy; 2026 <strong>Designak</strong></p>
-    </footer>
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3001' : window.location.origin + '/api';
 
-    <script src="script.js"></script>
+        let config = {};
+        let channels = [];
+        let roles = [];
+        let members = [];
+        let selectedChannels = [];
+
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particle.style.animationDelay = (Math.random() * 10) + 's';
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Show section
+        function showSection(name) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('section-' + name).classList.add('active');
+            document.querySelector(`.nav-item[data-section="${name}"]`).classList.add('active');
+        }
+
+        // Modal
+        function showModal(html) {
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function hideModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) hideModal();
+        });
+
+        // API Functions
+        async function fetchConfig() {
+            try {
+                const res = await fetch(API_BASE + '/config');
+                config = await res.json();
+                updateOverview();
+                updateSettingsForm();
+                updateAdminList();
+            } catch (err) {
+                console.error('Fetch config error:', err);
+            }
+        }
+
+        async function fetchChannels() {
+            try {
+                const res = await fetch(API_BASE + '/channels');
+                channels = await res.json();
+                updateChannelSelects();
+            } catch (err) {
+                console.error('Fetch channels error:', err);
+            }
+        }
+
+        async function fetchRoles() {
+            try {
+                const res = await fetch(API_BASE + '/roles');
+                roles = await res.json();
+            } catch (err) {
+                console.error('Fetch roles error:', err);
+            }
+        }
+
+        async function fetchMembers() {
+            try {
+                const res = await fetch(API_BASE + '/members');
+                members = await res.json();
+                updateMemberSelect();
+            } catch (err) {
+                console.error('Fetch members error:', err);
+            }
+        }
+
+        async function fetchUsers() {
+            try {
+                const res = await fetch(API_BASE + '/users');
+                const users = await res.json();
+                updateUsersTable(users);
+            } catch (err) {
+                console.error('Fetch users error:', err);
+            }
+        }
+
+        async function fetchStoreItems() {
+            try {
+                const res = await fetch(API_BASE + '/store');
+                const items = await res.json();
+                updateStoreItems(items);
+            } catch (err) {
+                console.error('Fetch store error:', err);
+            }
+        }
+
+        // Health check
+        async function checkHealth() {
+            try {
+                const res = await fetch(API_BASE + '/health');
+                const data = await res.json();
+                const dot = document.getElementById('statusDot');
+                const text = document.getElementById('statusText');
+                if (data.botOnline) {
+                    dot.classList.add('online');
+                    text.textContent = 'Online';
+                } else {
+                    dot.classList.remove('online');
+                    text.textContent = 'Offline';
+                }
+            } catch (err) {
+                document.getElementById('statusDot').classList.remove('online');
+                document.getElementById('statusText').textContent = 'Disconnected';
+            }
+        }
+
+        // Update Overview
+        function updateOverview() {
+            document.getElementById('statUsers').textContent = config.totalUsers || 0;
+            document.getElementById('statPoints').textContent = (config.totalPoints || 0).toLocaleString();
+            document.getElementById('statStore').textContent = (config.storeItems || []).length;
+            document.getElementById('statGuild').textContent = config.guildId ? 'Connected' : 'N/A';
+            document.getElementById('infoPointsName').textContent = config.pointsName || 'FBI';
+            document.getElementById('infoPointsPerMsg').textContent = config.pointsPerMessage || 1;
+            document.getElementById('infoChannels').textContent = (config.allowedChannels || []).length;
+            document.getElementById('infoLogChannel').textContent = config.logChannel ? 'Set' : 'Not Set';
+        }
+
+        // Update Settings Form
+        function updateSettingsForm() {
+            document.getElementById('settingsPointsName').value = config.pointsName || '';
+            document.getElementById('settingsPointsPerMsg').value = config.pointsPerMessage || 1;
+        }
+
+        // Save Settings
+        async function saveSettings() {
+            const pointsName = document.getElementById('settingsPointsName').value.trim();
+            const pointsPerMessage = parseInt(document.getElementById('settingsPointsPerMsg').value) || 0;
+
+            if (!pointsName) {
+                showToast('Points name cannot be empty!', 'error');
+                return;
+            }
+
+            try {
+                await fetch(API_BASE + '/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pointsName, pointsPerMessage })
+                });
+                config.pointsName = pointsName;
+                config.pointsPerMessage = pointsPerMessage;
+                updateOverview();
+                showToast('Settings saved successfully!');
+            } catch (err) {
+                showToast('Failed to save settings!', 'error');
+            }
+        }
+
+        // Update Channel Selects
+        function updateChannelSelects() {
+            const allowedSelect = document.getElementById('allowedChannelsSelect');
+            const logSelect = document.getElementById('logChannelSelect');
+            const storeSelect = document.getElementById('storeChannelSelect');
+
+            allowedSelect.innerHTML = '';
+            logSelect.innerHTML = '<option value="">-- Select Log Channel --</option>';
+            storeSelect.innerHTML = '<option value="">-- Select Store Channel --</option>';
+
+            channels.forEach(ch => {
+                // Multi-select for allowed channels
+                const item = document.createElement('div');
+                item.className = 'multi-select-item' + ((config.allowedChannels || []).includes(ch.id) ? ' selected' : '');
+                item.innerHTML = `<i class="fas fa-hashtag"></i> ${ch.name}`;
+                item.onclick = () => {
+                    item.classList.toggle('selected');
+                    if (item.classList.contains('selected')) {
+                        selectedChannels.push(ch.id);
+                    } else {
+                        selectedChannels = selectedChannels.filter(id => id !== ch.id);
+                    }
+                };
+                allowedSelect.appendChild(item);
+
+                // Single select for log
+                const opt = document.createElement('option');
+                opt.value = ch.id;
+                opt.textContent = ch.name;
+                logSelect.appendChild(opt);
+
+                const opt2 = document.createElement('option');
+                opt2.value = ch.id;
+                opt2.textContent = ch.name;
+                storeSelect.appendChild(opt2);
+            });
+
+            selectedChannels = [...(config.allowedChannels || [])];
+
+            // Set current values
+            if (config.logChannel) logSelect.value = config.logChannel;
+            if (config.storeChannel) storeSelect.value = config.storeChannel;
+        }
+
+        // Save Channels
+        async function saveChannels() {
+            try {
+                await fetch(API_BASE + '/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ allowedChannels: selectedChannels })
+                });
+                config.allowedChannels = selectedChannels;
+                updateOverview();
+                showToast('Channels saved!');
+            } catch (err) {
+                showToast('Failed to save!', 'error');
+            }
+        }
+
+        // Save Log Channel
+        async function saveLogChannel() {
+            const logChannel = document.getElementById('logChannelSelect').value;
+            try {
+                await fetch(API_BASE + '/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ logChannel })
+                });
+                config.logChannel = logChannel;
+                updateOverview();
+                showToast('Log channel saved!');
+            } catch (err) {
+                showToast('Failed to save!', 'error');
+            }
+        }
+
+        // Save Store Channel
+        async function saveStoreChannel() {
+            const storeChannel = document.getElementById('storeChannelSelect').value;
+            try {
+                await fetch(API_BASE + '/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ storeChannel })
+                });
+                config.storeChannel = storeChannel;
+                showToast('Store channel saved!');
+            } catch (err) {
+                showToast('Failed to save!', 'error');
+            }
+        }
+
+        // Store Items
+        function updateStoreItems(items) {
+            const container = document.getElementById('storeItemsContainer');
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">No store items yet. Click "Add Item" to create one.</p>';
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'store-item-card';
+                card.style.animationDelay = (index * 0.1) + 's';
+                card.innerHTML = `
+                    <div class="store-item-header">
+                        <div class="store-item-name">${item.name}</div>
+                        <div class="store-item-price">${item.price.toLocaleString()} ${config.pointsName || 'Points'}</div>
+                    </div>
+                    <div class="store-item-desc">${item.description || 'No description'}</div>
+                    ${item.roleId ? `<div class="store-item-role"><i class="fas fa-crown"></i> Role: ${item.roleId}</div>` : ''}
+                    <div class="store-item-actions">
+                        <button class="btn btn-secondary" onclick="showEditItemModal(${item.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteItem(${item.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Add Item Modal
+        function showAddItemModal() {
+            const roleOptions = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+            showModal(`
+                <div class="modal-title">Add Store Item</div>
+                <div class="form-group">
+                    <label class="form-label">Item Name</label>
+                    <input type="text" class="form-input" id="modalItemName" placeholder="e.g., VIP Role">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price (in ${config.pointsName || 'points'})</label>
+                    <input type="number" class="form-input" id="modalItemPrice" placeholder="e.g., 5000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input" id="modalItemDesc" placeholder="Details about this item...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Discord Role (Optional)</label>
+                    <select class="form-select" id="modalItemRole">
+                        <option value="">-- None --</option>
+                        ${roleOptions}
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+                    <button class="btn btn-success" onclick="addItem()">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+            `);
+        }
+
+        async function addItem() {
+            const name = document.getElementById('modalItemName').value.trim();
+            const price = parseInt(document.getElementById('modalItemPrice').value) || 0;
+            const description = document.getElementById('modalItemDesc').value.trim();
+            const roleId = document.getElementById('modalItemRole').value || null;
+
+            if (!name) { showToast('Name is required!', 'error'); return; }
+            if (price <= 0) { showToast('Price must be greater than 0!', 'error'); return; }
+
+            try {
+                await fetch(API_BASE + '/store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, price, description, roleId })
+                });
+                hideModal();
+                fetchStoreItems();
+                fetchConfig();
+                showToast('Item added successfully!');
+            } catch (err) {
+                showToast('Failed to add item!', 'error');
+            }
+        }
+
+        // Edit Item Modal
+        function showEditItemModal(itemId) {
+            const item = config.storeItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const roleOptions = roles.map(r =>
+                `<option value="${r.id}" ${r.id === item.roleId ? 'selected' : ''}>${r.name}</option>`
+            ).join('');
+
+            showModal(`
+                <div class="modal-title">Edit Store Item</div>
+                <div class="form-group">
+                    <label class="form-label">Item Name</label>
+                    <input type="text" class="form-input" id="editItemName" value="${item.name}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price</label>
+                    <input type="number" class="form-input" id="editItemPrice" value="${item.price}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input" id="editItemDesc" value="${item.description || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Discord Role</label>
+                    <select class="form-select" id="editItemRole">
+                        <option value="">-- None --</option>
+                        ${roleOptions}
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="updateItem(${item.id})">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            `);
+        }
+
+        async function updateItem(itemId) {
+            const name = document.getElementById('editItemName').value.trim();
+            const price = parseInt(document.getElementById('editItemPrice').value) || 0;
+            const description = document.getElementById('editItemDesc').value.trim();
+            const roleId = document.getElementById('editItemRole').value || null;
+
+            try {
+                await fetch(API_BASE + '/store/' + itemId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, price, description, roleId })
+                });
+                hideModal();
+                fetchStoreItems();
+                showToast('Item updated!');
+            } catch (err) {
+                showToast('Failed to update!', 'error');
+            }
+        }
+
+        // Delete Item
+        async function deleteItem(itemId) {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+
+            try {
+                await fetch(API_BASE + '/store/' + itemId, { method: 'DELETE' });
+                fetchStoreItems();
+                fetchConfig();
+                showToast('Item deleted!');
+            } catch (err) {
+                showToast('Failed to delete!', 'error');
+            }
+        }
+
+        // Admin Management
+        function updateMemberSelect() {
+            const select = document.getElementById('adminSelect');
+            select.innerHTML = '<option value="">-- Select Member --</option>';
+            members.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = m.displayName || m.username;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateAdminList() {
+            const list = document.getElementById('adminList');
+            list.innerHTML = '';
+
+            if (!config.admins || config.admins.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">No admins configured.</p>';
+                return;
+            }
+
+            config.admins.forEach(adminId => {
+                const tag = document.createElement('div');
+                tag.className = 'admin-tag';
+                tag.innerHTML = `
+                    <i class="fas fa-user-shield"></i>
+                    <span>${adminId}</span>
+                    <i class="fas fa-times remove-admin" onclick="removeAdmin('${adminId}')"></i>
+                `;
+                list.appendChild(tag);
+            });
+        }
+
+        async function addAdmin() {
+            const userId = document.getElementById('adminSelect').value;
+            if (!userId) { showToast('Select a member first!', 'error'); return; }
+
+            if (!config.admins) config.admins = [];
+            if (config.admins.includes(userId)) {
+                showToast('Already an admin!', 'error');
+                return;
+            }
+
+            config.admins.push(userId);
+
+            try {
+                await fetch(API_BASE + '/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admins: config.admins })
+                });
+                updateAdminList();
+                showToast('Admin added!');
+            } catch (err) {
+                showToast('Failed to add admin!', 'error');
+            }
+        }
+
+        async function removeAdmin(userId) {
+            config.admins = config.admins.filter(id => id !== userId);
+
+            try {
+                await fetch(API_BASE + '/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admins: config.admins })
+                });
+                updateAdminList();
+                showToast('Admin removed!');
+            } catch (err) {
+                showToast('Failed to remove!', 'error');
+            }
+        }
+
+        // Users Table
+        function updateUsersTable(users) {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                tr.innerHTML = `
+                    <td><span class="rank-badge ${rankClass}">${index + 1}</span></td>
+                    <td style="font-size: 12px; color: var(--text-muted);">${user.id}</td>
+                    <td>${user.username || user.id}</td>
+                    <td><strong>${(user.points || 0).toLocaleString()}</strong></td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn btn-success" style="padding: 6px 10px; font-size: 11px;" onclick="addPointsUser('${user.id}')">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                            <button class="btn btn-danger" style="padding: 6px 10px; font-size: 11px;" onclick="removePointsUser('${user.id}')">
+                                <i class="fas fa-minus"></i> Remove
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addPointsUser(userId) {
+            const amount = prompt('Enter amount to add:');
+            if (!amount || isNaN(amount)) return;
+
+            fetch(API_BASE + '/addpoints', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, amount: parseInt(amount) })
+            }).then(() => {
+                fetchUsers();
+                fetchConfig();
+                showToast('Points added!');
+            });
+        }
+
+        function removePointsUser(userId) {
+            const amount = prompt('Enter amount to remove:');
+            if (!amount || isNaN(amount)) return;
+
+            fetch(API_BASE + '/removepoints', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, amount: parseInt(amount) })
+            }).then(() => {
+                fetchUsers();
+                fetchConfig();
+                showToast('Points removed!');
+            });
+        }
+
+        async function resetAllPoints() {
+            if (!confirm('Are you sure you want to reset ALL points? This cannot be undone!')) return;
+
+            try {
+                await fetch(API_BASE + '/reset', { method: 'POST' });
+                fetchUsers();
+                fetchConfig();
+                showToast('All points reset!');
+            } catch (err) {
+                showToast('Failed to reset!', 'error');
+            }
+        }
+
+        // Initialize
+        async function init() {
+            await checkHealth();
+            await fetchConfig();
+            await fetchChannels();
+            await fetchRoles();
+            await fetchMembers();
+            await fetchStoreItems();
+            await fetchUsers();
+        }
+
+        init();
+        setInterval(checkHealth, 10000);
+    </script>
 </body>
-
 </html>
