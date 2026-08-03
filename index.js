@@ -3,16 +3,11 @@ keepAlive();
 
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
- * ║          🛡️  WANO SECURITY BOT — Ultimate Discord Guard          ║
- * ║                  © 2026 مروان | Wano Studio                      ║
- * ║         Discord: @wn6b | GitHub: @wn5b | TikTok: @w_n6b          ║
- * ║         يُمنع إعادة البيع أو التوزيع أو حذف هذا الملف            ║
+ * ║          🛡️  SECURITY BOT — Discord Protection System            ║
  * ╚══════════════════════════════════════════════════════════════════╝
  *
  *  البوت: Wano Security Bot v4.0
- *  المطور: مروان (Wano) — Wano Studio
  *  الوصف: أقوى بوت حماية على ديسكورد — Slash Commands Edition
- *  الحقوق: By @.om_.
  */
 
 const {
@@ -255,7 +250,7 @@ const ghostPingCache = new Map();
 //   ✦ WANO EMBED SYSTEM — أشكال جديدة كلياً
 // ══════════════════════════════════════════
 
-const CREDITS = "\n\n─────────────────────\n**By @.om_.**";
+const CREDITS = "";
 
 /**
  * الإيمبد الرئيسي — إطار مزدوج بألوان متدرجة
@@ -269,7 +264,7 @@ function wanoEmbed(title, description, color = 0xE84141) {
     })
     .setTitle(`${title}`)
     .setDescription(`${description}${CREDITS}`)
-    .setFooter({ text: "🛡️ Wano Security · مروان | Wano Studio · @wn6b", iconURL: client.user?.displayAvatarURL() })
+    .setFooter({ text: "🛡️ Wano Security", iconURL: client.user?.displayAvatarURL() })
     .setTimestamp();
 }
 
@@ -285,7 +280,7 @@ function successEmbed(title, desc) {
       `\`\`\`diff\n+ ${desc.replace(/\n/g, "\n+ ")}\n\`\`\`` +
       `${CREDITS}`
     )
-    .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+    .setFooter({ text: "🛡️ Wano Security " })
     .setTimestamp();
 }
 
@@ -300,7 +295,7 @@ function errorEmbed(title, desc) {
     .setDescription(
       `> ⚠️ **${desc}**` + `${CREDITS}`
     )
-    .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+    .setFooter({ text: "🛡️ Wano Security " })
     .setTimestamp();
 }
 
@@ -315,7 +310,7 @@ function warnEmbed(title, desc) {
     .setDescription(
       `\`\`\`fix\n${desc}\n\`\`\`` + `${CREDITS}`
     )
-    .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+    .setFooter({ text: "🛡️ Wano Security " })
     .setTimestamp();
 }
 
@@ -328,7 +323,7 @@ function infoEmbed(title, desc) {
     .setAuthor({ name: "◈ INFO PANEL", iconURL: client.user?.displayAvatarURL() })
     .setTitle(`📋  ${title}`)
     .setDescription(desc + `${CREDITS}`)
-    .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+    .setFooter({ text: "🛡️ Wano Security " })
     .setTimestamp();
 }
 
@@ -347,7 +342,7 @@ function logEmbed(type, color, fields) {
     .setColor(color)
     .setAuthor({ name: `${icons[type] || "📌"} ${type} LOG — Wano Security`, iconURL: client.user?.displayAvatarURL() })
     .setTimestamp()
-    .setFooter({ text: `By @.om_. · Wano Studio` });
+    .setFooter({ text: `` });
   for (const f of fields) {
     embed.addFields({ name: f.name, value: f.value, inline: f.inline ?? true });
   }
@@ -374,7 +369,7 @@ function threatEmbed(title, desc, level = "HIGH") {
       `**Threat Level:** ${l.bar} \`${level}\`` +
       `${CREDITS}`
     )
-    .setFooter({ text: "🛡️ Wano Security · Real-Time Protection" })
+    .setFooter({ text: "🛡️ Wano SecurityReal-Time Protection" })
     .setTimestamp();
 }
 
@@ -968,7 +963,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "⏰ الوقت", value: `<t:${Math.floor(Date.now()/1000)}:R>`, inline: true },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
     sendModLog(guild, logEmbed("BAN", 0xFF1744, [
@@ -1002,7 +997,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "🛡️ المشرف", value: member.user.tag, inline: true },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
     sendModLog(guild, logEmbed("KICK", 0xFF6D00, [
@@ -1073,7 +1068,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "📊 التحذيرات", value: `${warnBar} \`${warns.length}/${cfg.maxWarns}\``, inline: false },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
 
@@ -1370,7 +1365,7 @@ client.on("interactionCreate", async (interaction) => {
       .setAuthor({ name: "⚙️ PROTECTION TOGGLE", iconURL: client.user.displayAvatarURL() })
       .setTitle(`${commandName.toUpperCase()}`)
       .setDescription(statusBar + CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
   }
@@ -1418,7 +1413,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "🎭 الأدوار", value: target.roles.cache.filter(r => r.id !== guild.id).map(r => r.toString()).join(", ") || "لا يوجد", inline: false },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
   }
@@ -1443,7 +1438,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "🔒 التحقق", value: `${g.verificationLevel}`, inline: true },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
   }
@@ -1456,7 +1451,7 @@ client.on("interactionCreate", async (interaction) => {
       .setTitle(target.tag)
       .setImage(target.displayAvatarURL({ size: 4096, dynamic: true }))
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" });
+      .setFooter({ text: "🛡️ Wano Security " });
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setLabel("PNG").setStyle(ButtonStyle.Link).setURL(target.displayAvatarURL({ extension: "png", size: 4096 })),
       new ButtonBuilder().setLabel("JPG").setStyle(ButtonStyle.Link).setURL(target.displayAvatarURL({ extension: "jpg", size: 4096 })),
@@ -1479,7 +1474,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "📌 Hoisted", value: role.hoist ? "✅" : "❌", inline: true },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
   }
@@ -1497,7 +1492,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "🔞 NSFW", value: ch.nsfw ? "✅" : "❌", inline: true },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
   }
@@ -1516,7 +1511,7 @@ client.on("interactionCreate", async (interaction) => {
         `👤 **بشر:** ${humans}\n🤖 **بوتات:** ${bots}\n📊 **الكل:** ${guild.memberCount}` +
         CREDITS
       )
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
   }
@@ -1579,7 +1574,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "Warn Action",    value: cfg.warnAction, inline: true },
       )
       .setDescription(CREDITS)
-      .setFooter({ text: "🛡️ Wano Security · مروان | Wano Studio · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security" })
       .setTimestamp();
     reply(embed);
   }
@@ -1597,7 +1592,7 @@ client.on("interactionCreate", async (interaction) => {
         `\`\`\`\nBot  : ${latency}ms\nAPI  : ${ping}ms\n\`\`\`` +
         `**الجودة:** ${quality}` + CREDITS
       )
-      .setFooter({ text: "🛡️ Wano Security · @wn6b" })
+      .setFooter({ text: "🛡️ Wano Security " })
       .setTimestamp();
     reply(embed);
   }
@@ -1626,7 +1621,7 @@ client.on("interactionCreate", async (interaction) => {
       .setThumbnail(client.user.displayAvatarURL())
       .setDescription(`جميع الأوامر سلاش كوماند \`/\` — باستثناء \`!say\` و\`!announce\`${CREDITS}`);
     for (const s of sections) embed.addFields({ name: s.name, value: s.value, inline: false });
-    embed.setFooter({ text: "🛡️ Wano Security Bot v4.0 · مروان | Wano Studio · @wn6b" }).setTimestamp();
+    embed.setFooter({ text: "🛡️ Wano Security Bot v4.0" }).setTimestamp();
     reply(embed);
   }
 
@@ -1928,7 +1923,7 @@ client.on("ready", async () => {
   console.log(`│  🛡️  Wano Security Bot v4.0 — ONLINE     │`);
   console.log(`│  👤  ${client.user.tag.padEnd(36)}│`);
   console.log(`│  🌐  Guilds: ${String(client.guilds.cache.size).padEnd(29)}│`);
-  console.log(`│  ✦   By: مروان | Wano Studio (@wn6b)    │`);
+  console.log(`│  ✦   System is Ready    │`);
   console.log(`└─────────────────────────────────────────┘\n`);
 
   client.user.setPresence({
