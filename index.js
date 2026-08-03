@@ -1,3 +1,6 @@
+const keepAlive = require("./server.js");
+keepAlive();
+
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
  * ║          🛡️  WANO SECURITY BOT — Ultimate Discord Guard          ║
